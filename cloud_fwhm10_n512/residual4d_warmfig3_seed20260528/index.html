@@ -1,0 +1,42 @@
+<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'>
+<title>LNO327 CNN 训练任务报告</title>
+<style>body{font:13px/1.45 'Microsoft YaHei',Arial,sans-serif;margin:24px;color:#202124}table{border-collapse:collapse;margin:8px 0 16px;width:100%}th,td{border:1px solid #d9d7ce;padding:5px 7px;text-align:left;vertical-align:top}th{background:#ecebe4;width:260px}pre{background:#f3f2ec;padding:10px;white-space:pre-wrap}.figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;margin:10px 0}figure{margin:0;border:1px solid #d9d7ce;background:#fff;padding:8px}img{display:block;max-width:100%;height:auto}figcaption{margin-top:5px;color:#5f6368}h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #d9d7ce;padding-bottom:4px}</style>
+</head><body>
+<h1>LNO327 CNN 训练任务报告</h1>
+<h2>任务</h2>
+<table><tr><th>status</th><td>done</td></tr><tr><th>elapsed</th><td>2.7 min</td></tr><tr><th>output</th><td>runs/cloud_fwhm10_n512/residual4d_wide_fwhm10_n512_warmfig3_e220_aux003_seed20260528_b64</td></tr></table>
+<h2>结果</h2>
+<table><tr><th>test mean range-normalized MAE</th><td>4.67%</td></tr><tr><th>test overall MAE</th><td>0.409936 meV</td></tr><tr><th>test overall RMSE</th><td>0.967142 meV</td></tr><tr><th>best epoch</th><td>97</td></tr><tr><th>best val loss</th><td>0.00533897</td></tr></table>
+<h2>解释性指标</h2>
+<table><tr><th>gate test mean</th><td>0.425041</td></tr><tr><th>gate test std</th><td>0.280078</td></tr></table>
+<h2>可视化</h2>
+<div class='figgrid'>
+<figure><img src='01_training_curve.png' alt='训练 loss 曲线'><figcaption>训练 loss 曲线</figcaption></figure>
+<figure><img src='02_energy_attention.png' alt='4D attention 权重'><figcaption>4D attention 权重</figcaption></figure>
+</div>
+<h2>日志尾部</h2>
+<pre>[task] start mode=residual4d out=runs/cloud_fwhm10_n512/residual4d_wide_fwhm10_n512_warmfig3_e220_aux003_seed20260528_b64
+warm-started 16 Fig.3 tensors from runs/cloud_fwhm10_n512/fig3_wide_fwhm10_n512_seed20260527_e280_b64/cnn.pt
+trainable scope=no_fig3_encoder trainable=44757/105365
+epoch 0001 train_loss=0.00768824 val_loss=0.0104114 best_val=0.0104114
+epoch 0010 train_loss=0.00645209 val_loss=0.00914524 best_val=0.00718676
+epoch 0020 train_loss=0.00658763 val_loss=0.00776097 best_val=0.00688165
+epoch 0030 train_loss=0.00590385 val_loss=0.010482 best_val=0.00643542
+epoch 0040 train_loss=0.00566374 val_loss=0.0063545 best_val=0.00635174
+epoch 0050 train_loss=0.00518789 val_loss=0.00910116 best_val=0.00579979
+epoch 0060 train_loss=0.00531337 val_loss=0.00648149 best_val=0.00579979
+epoch 0070 train_loss=0.00513098 val_loss=0.00621646 best_val=0.00579979
+epoch 0080 train_loss=0.00462065 val_loss=0.0092349 best_val=0.00569318
+epoch 0090 train_loss=0.00444963 val_loss=0.00856167 best_val=0.00564578
+epoch 0100 train_loss=0.00415055 val_loss=0.00801087 best_val=0.00533897
+epoch 0110 train_loss=0.00402694 val_loss=0.00839998 best_val=0.00533897
+epoch 0120 train_loss=0.00393704 val_loss=0.00842984 best_val=0.00533897
+epoch 0130 train_loss=0.00344345 val_loss=0.00677581 best_val=0.00533897
+epoch 0140 train_loss=0.0032118 val_loss=0.00888531 best_val=0.00533897
+epoch 0150 train_loss=0.00310612 val_loss=0.00954309 best_val=0.00533897
+epoch 0160 train_loss=0.00288978 val_loss=0.0105264 best_val=0.00533897
+epoch 0170 train_loss=0.00292787 val_loss=0.00864381 best_val=0.00533897
+early stopping at epoch 177 after 80 stale epochs
+[task] best_epoch=97
+[task] test_mean_range_mae=0.0466685</pre>
+</body></html>

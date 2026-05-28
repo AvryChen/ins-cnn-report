@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="refresh" content="300"><title>LNO327 posterior 24h status</title>
+<style>body{font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;margin:24px;background:#f5f7fa;color:#17202a}main{max-width:1100px;margin:auto}section{background:#fff;border:1px solid #d9e0e7;border-radius:8px;padding:16px;margin:12px 0}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #d9e0e7;padding:7px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;background:#111827;color:#e5e7eb;padding:12px;border-radius:8px}code{white-space:pre-wrap}</style></head>
+<body><main>
+<section><h1>LNO327 posterior 24h status</h1><table><tr><th>status</th><td><code>done</code></td></tr><tr><th>stage</th><td><code>summary</code></td></tr><tr><th>started</th><td><code>2026-05-27 03:44:14</code></td></tr><tr><th>updated</th><td><code>2026-05-28 18:33:50</code></td></tr><tr><th>current command</th><td><code>bash -lc GENERATE_REPORT_INDEX=0 COMMIT_MESSAGE=&quot;Update posterior 24h final report&quot; scripts/lno327_publish_report_pages.sh docs</code></td></tr><tr><th>active jobs</th><td><code>0</code></td></tr><tr><th>log source</th><td><code>/home/linux/work/ins-cnn/runs/posterior_24h/followup_bigger.log</code></td></tr></table></section>
+<section><h2>process</h2><pre>{
+  &quot;running&quot;: false,
+  &quot;pid&quot;: &quot;385544&quot;,
+  &quot;reason&quot;: &quot;process not found&quot;
+}</pre></section>
+<section><h2>active jobs</h2><pre>[]</pre></section>
+<section><h2>resources</h2><pre>{
+  &quot;gpu&quot;: {
+    &quot;available&quot;: true,
+    &quot;utilization_percent&quot;: 0.0,
+    &quot;memory_used_mib&quot;: 11.0,
+    &quot;memory_total_mib&quot;: 32760.0,
+    &quot;temperature_c&quot;: 35.0,
+    &quot;power_w&quot;: 11.19
+  },
+  &quot;disk&quot;: {
+    &quot;free_gb&quot;: 103.38,
+    &quot;used_gb&quot;: 92.68,
+    &quot;total_gb&quot;: 196.06
+  }
+}</pre></section>
+<section><h2>progress</h2><pre>{
+  &quot;status&quot;: &quot;done&quot;,
+  &quot;posterior&quot;: &quot;mdn&quot;,
+  &quot;epoch&quot;: 90,
+  &quot;epochs&quot;: 90,
+  &quot;best_val_nll&quot;: -7.916062763759068,
+  &quot;best_epoch&quot;: 87,
+  &quot;batch_size&quot;: 48,
+  &quot;hidden&quot;: 96,
+  &quot;embedding&quot;: 192,
+  &quot;amp&quot;: true,
+  &quot;amp_dtype&quot;: &quot;float16&quot;,
+  &quot;elapsed_s&quot;: 1239.6081416606903,
+  &quot;mean_range_mae&quot;: 0.0898158272036346,
+  &quot;run_dir&quot;: &quot;/home/linux/work/ins-cnn/runs/posterior_24h/mdn_n2048_b48&quot;
+}</pre></section>
+<section><h2>campaign messages</h2><pre>create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/report.md
+create mode 100644 cloud_network.md
+create mode 100644 index.html
+create mode 100644 lno327_ai_handoff.html
+create mode 100644 lno327_cnn_weakpeak_summary.md
+create mode 100644 lno327_training_guide/cnn.html
+create mode 100644 lno327_training_guide/data.html
+create mode 100644 lno327_training_guide/index.html
+create mode 100644 lno327_training_guide/parameters.html
+create mode 100644 lno327_training_guide/style.css
+create mode 100644 lno327_training_guide/training.html
+create mode 100644 posterior_24h/data_n2048/index.html
+create mode 100644 posterior_24h/index.html
+create mode 100644 posterior_24h/monitor.html
+create mode 100644 posterior_24h/monitor.json
+create mode 100644 posterior_24h/npe_encoder_flow/01_training_curve.png
+create mode 100644 posterior_24h/npe_encoder_flow/02_coverage.png
+create mode 100644 posterior_24h/npe_encoder_flow/03_paper_pairplot.png
+create mode 100644 posterior_24h/npe_encoder_flow/index.html
+create mode 100644 posterior_24h/npe_encoder_flow/metrics.json
+create mode 100644 posterior_24h/npe_encoder_flow/progress.json
+create mode 100644 posterior_24h/npe_encoder_flow/training_curve.csv
+create mode 100644 posterior_24h/posterior_predictive/index.html
+create mode 100644 posterior_24h/status.html
+create mode 100644 posterior_24h/status.json
+create mode 100644 posterior_24h/uncertainty_cnn/01_training_curve.png
+create mode 100644 posterior_24h/uncertainty_cnn/02_coverage.png
+create mode 100644 posterior_24h/uncertainty_cnn/03_paper_pairplot.png
+create mode 100644 posterior_24h/uncertainty_cnn/index.html
+create mode 100644 posterior_24h/uncertainty_cnn/metrics.json
+create mode 100644 posterior_24h/uncertainty_cnn/progress.json
+create mode 100644 posterior_24h/uncertainty_cnn/training_curve.csv
+create mode 100644 report_manifest.json
+create mode 100644 superpowers/plans/2026-05-23-lno327-julia-inverse-dataset.md
+From github.com-ins-cnn-report:AvryChen/ins-cnn-report
+* [new branch]      gh-pages   -&gt; origin/gh-pages
+To github.com-ins-cnn-report:AvryChen/ins-cnn-report.git
++ a000fab...7b759f4 gh-pages -&gt; gh-pages (forced update)
+Published docs to git@github.com-ins-cnn-report:AvryChen/ins-cnn-report.git#gh-pages
+[2026-05-27 04:48:04] campaign finished</pre></section>
+<section><h2>log tail</h2><pre> create mode 100644 cloud_fwhm10_n512/model_comparison_seed20260527_plus_b128/metrics.json
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e3_seed20260529/01_training_curve.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e3_seed20260529/02_energy_attention.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e3_seed20260529/index.html
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e3_seed20260529/metrics.json
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e3_seed20260529/report.md
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e4_seed20260531/01_training_curve.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e4_seed20260531/02_energy_attention.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e4_seed20260531/index.html
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e4_seed20260531/metrics.json
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr2e4_seed20260531/report.md
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr5e4_seed20260530/01_training_curve.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr5e4_seed20260530/02_energy_attention.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr5e4_seed20260530/index.html
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr5e4_seed20260530/metrics.json
+ create mode 100644 cloud_fwhm10_n512/residual4d_heads_lr5e4_seed20260530/report.md
+ create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/01_training_curve.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/02_energy_attention.png
+ create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/index.html
+ create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/metrics.json
+ create mode 100644 cloud_fwhm10_n512/residual4d_warmfig3_seed20260528/report.md
+ create mode 100644 cloud_network.md
+ create mode 100644 index.html
+ create mode 100644 lno327_ai_handoff.html
+ create mode 100644 lno327_cnn_weakpeak_summary.md
+ create mode 100644 lno327_training_guide/cnn.html
+ create mode 100644 lno327_training_guide/data.html
+ create mode 100644 lno327_training_guide/index.html
+ create mode 100644 lno327_training_guide/parameters.html
+ create mode 100644 lno327_training_guide/style.css
+ create mode 100644 lno327_training_guide/training.html
+ create mode 100644 posterior_24h/data_n2048/index.html
+ create mode 100644 posterior_24h/index.html
+ create mode 100644 posterior_24h/monitor.html
+ create mode 100644 posterior_24h/monitor.json
+ create mode 100644 posterior_24h/npe_encoder_flow/01_training_curve.png
+ create mode 100644 posterior_24h/npe_encoder_flow/02_coverage.png
+ create mode 100644 posterior_24h/npe_encoder_flow/03_paper_pairplot.png
+ create mode 100644 posterior_24h/npe_encoder_flow/index.html
+ create mode 100644 posterior_24h/npe_encoder_flow/metrics.json
+ create mode 100644 posterior_24h/npe_encoder_flow/progress.json
+ create mode 100644 posterior_24h/npe_encoder_flow/training_curve.csv
+ create mode 100644 posterior_24h/posterior_predictive/index.html
+ create mode 100644 posterior_24h/status.html
+ create mode 100644 posterior_24h/status.json
+ create mode 100644 posterior_24h/uncertainty_cnn/01_training_curve.png
+ create mode 100644 posterior_24h/uncertainty_cnn/02_coverage.png
+ create mode 100644 posterior_24h/uncertainty_cnn/03_paper_pairplot.png
+ create mode 100644 posterior_24h/uncertainty_cnn/index.html
+ create mode 100644 posterior_24h/uncertainty_cnn/metrics.json
+ create mode 100644 posterior_24h/uncertainty_cnn/progress.json
+ create mode 100644 posterior_24h/uncertainty_cnn/training_curve.csv
+ create mode 100644 report_manifest.json
+ create mode 100644 superpowers/plans/2026-05-23-lno327-julia-inverse-dataset.md
+From github.com-ins-cnn-report:AvryChen/ins-cnn-report
+ * [new branch]      gh-pages   -&gt; origin/gh-pages
+To github.com-ins-cnn-report:AvryChen/ins-cnn-report.git
+ + a000fab...7b759f4 gh-pages -&gt; gh-pages (forced update)
+Published docs to git@github.com-ins-cnn-report:AvryChen/ins-cnn-report.git#gh-pages
+[2026-05-27 04:48:04] campaign finished</pre></section>
+</main></body></html>

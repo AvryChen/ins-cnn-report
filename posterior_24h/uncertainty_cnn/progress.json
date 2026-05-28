@@ -1,0 +1,18 @@
+{
+  "status": "running",
+  "posterior": "gaussian",
+  "epoch": 175,
+  "epochs": 180,
+  "train_nll": -10.85173381169637,
+  "val_nll": -10.460202625819615,
+  "best_val_nll": -11.654472759791783,
+  "best_epoch": 158,
+  "stale_epochs": 17,
+  "batch_size": 48,
+  "hidden": 96,
+  "embedding": 192,
+  "amp": true,
+  "amp_dtype": "float16",
+  "elapsed_s": 2370.358427286148,
+  "run_dir": "/home/linux/work/ins-cnn/runs/posterior_24h/uncertainty_cnn_n2048_b48"
+}

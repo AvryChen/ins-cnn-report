@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>训练流程、指标与 GPU 设置</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">返回报告首页</a>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">training and metrics</div>
+          <h1>训练时到底在优化什么，结果应该怎么看</h1>
+          <p class="lead">这页解释 epoch、batch、loss、AMP、range MAE、validation/test 的含义，并记录当前 4080S 上可用的正式配置。</p>
+        </div>
+        <aside class="status-panel">
+          <strong>当前稳定配置</strong>
+          <p>gated4d / residual4d, hidden=32, embedding=64, AMP float16, batch=128。</p>
+          <div class="rainbow"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="training guide">
+      <a href="./index.html">总览</a>
+      <a href="./parameters.html">参数</a>
+      <a href="./data.html">Fig.3 与 4D 数据</a>
+      <a href="./cnn.html">CNN 算法</a>
+      <a href="./training.html" aria-current="page">训练与指标</a>
+    </nav>
+  </div>
+
+  <main>
+    <div class="layout">
+      <aside class="toc">
+        <strong>本页目录</strong>
+        <a href="#loop">训练循环</a>
+        <a href="#metrics">指标怎么读</a>
+        <a href="#amp">AMP 与 batch</a>
+        <a href="#current-run">当前正式 run</a>
+        <a href="#next">下一步策略</a>
+      </aside>
+
+      <div class="content">
+        <section id="loop" class="section">
+          <h2>1. 训练循环</h2>
+          <p>每个样本都有真实参数。模型根据谱图输出五个预测值，代码先在 0 到 1 的归一化参数空间里算误差，然后通过反向传播更新 CNN 权重。</p>
+          <div class="flow">
+            <div class="step">
+              <span class="badge">1</span>
+              <div>
+                <strong>读取一个 batch</strong>
+                <p>例如 batch=128，就是一次从训练集拿 128 个样本进 GPU。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">2</span>
+              <div>
+                <strong>前向预测</strong>
+                <p>Fig.3 和 4D 经过 CNN，输出五个 0 到 1 之间的归一化参数。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">3</span>
+              <div>
+                <strong>计算 loss</strong>
+                <p>主 loss 是归一化参数的 MSE；gated/residual 模型可以加 auxiliary loss。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">4</span>
+              <div>
+                <strong>更新权重并验证</strong>
+                <p>每个 epoch 后看 validation loss；保存验证集最好的 checkpoint。</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout blue">
+            validation 用来选模型和 ensemble 权重；test 只用于最终报告。不要用 test 来反复调参数，否则结果会虚高。
+          </div>
+        </section>
+
+        <section id="metrics" class="section">
+          <h2>2. 指标怎么读</h2>
+          <p>最重要的指标是 <strong>mean range-normalized MAE</strong>。它先算每个参数的 MAE，再除以该参数的采样范围，最后对五个参数平均。</p>
+          <div class="formula">range_MAE(param) = MAE(param) / (param_max - param_min)
+mean_range_MAE = mean(range_MAE over SJc, SJ1a, SJ1b, SJ2, SA)</div>
+          <p>为什么要这样？因为 SA 的绝对数值很小，SJc 的绝对数值很大。只看原始 MAE 会让不同参数不可比。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>指标</th>
+                  <th>含义</th>
+                  <th>怎么判断</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>train loss</td>
+                  <td>训练集上的归一化 MSE。</td>
+                  <td>下降说明模型在学习；太低但 val 不降可能是过拟合。</td>
+                </tr>
+                <tr>
+                  <td>val loss</td>
+                  <td>验证集上的归一化 MSE。</td>
+                  <td>决定保存哪个 epoch 的模型。</td>
+                </tr>
+                <tr>
+                  <td>test mean range MAE</td>
+                  <td>测试集上五个参数的平均相对 MAE。</td>
+                  <td>越低越好，是当前最重要的汇报数字。</td>
+                </tr>
+                <tr>
+                  <td>per-parameter MAE/range</td>
+                  <td>每个参数单独的相对误差。</td>
+                  <td>用来判断 SJc、SA 等难参数是否拖后腿。</td>
+                </tr>
+                <tr>
+                  <td>R2</td>
+                  <td>预测解释方差的比例。</td>
+                  <td>接近 1 好；但在小 test set 上需结合 MAE 看。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="amp" class="section">
+          <h2>3. AMP 与 batch</h2>
+          <p>AMP 是 automatic mixed precision。简单说，它让大部分 GPU 运算用 float16 跑，同时用 GradScaler 避免梯度下溢。目的主要是加速和省显存，但必须确认精度不变差。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>配置</th>
+                  <th>n1024 AMP sweep 结果</th>
+                  <th>结论</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>gated4d, hidden=32, embedding=64, batch=128</td>
+                  <td>OK，峰值约 27391 MB，约 29.2 samples/s。</td>
+                  <td>当前正式训练配置。</td>
+                </tr>
+                <tr>
+                  <td>residual4d, hidden=32, embedding=64, batch=128</td>
+                  <td>OK，峰值约 27391 MB，约 27.8 samples/s。</td>
+                  <td>下一条正式对照配置。</td>
+                </tr>
+                <tr>
+                  <td>batch=160 或 192</td>
+                  <td>OOM。</td>
+                  <td>4080S 这份 4D 数据上不能简单把 batch 再加大。</td>
+                </tr>
+                <tr>
+                  <td>hidden=48, embedding=96</td>
+                  <td>OOM。</td>
+                  <td>更大模型不是当前最稳路线；需要降低分辨率、做梯度累积或改结构。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warning">
+            显存大不等于应该盲目放大模型。当前 4D 输入本身很大，batch=128 已经接近稳定上限。下一步更合理的是 AMP 稳定性验证、梯度累积、数据加载/CPU 生成加速和模型结构对照。
+          </div>
+        </section>
+
+        <section id="current-run" class="section">
+          <h2>4. 当前正式 run</h2>
+          <p>当前云端正式训练使用 pure-wide n1024 数据集，目标是验证 AMP float16 在 4080S 上是否能保持精度并提高吞吐。命令形态如下：</p>
+          <pre><code>python scripts/lno327_run_cnn_task.py \
+  --data data/lno327_inverse_4d_wide_extra_augtrain_n1024_q160_e180_h81_k121_l5.h5 \
+  --out runs/lno327_inverse_cnn_weakpeak_n512/gated4d_wide_extra_augtrain_scratch_e280_aux015_seed20260705_ampfp16_b128 \
+  --mode gated4d \
+  --epochs 280 \
+  --batch-size 128 \
+  --hidden 32 \
+  --embedding 64 \
+  --lr 1e-3 \
+  --weight-decay 1e-3 \
+  --aux-weight 0.15 \
+  --seed 20260705 \
+  --device cuda \
+  --patience 80 \
+  --amp \
+  --amp-dtype float16</code></pre>
+          <p>已知对照：同 seed 的 FP32 gated4d 从头训练曾完成，best epoch 为 278，test mean range MAE 为 4.5813%。这不是历史最好结果，但可作为 AMP 是否变差的直接对照。</p>
+          <div class="cards">
+            <article class="card">
+              <div class="label">旧 batch32 scratch gated4d</div>
+              <div class="value">约 10 小时</div>
+              <div class="detail">来自既有 pure-wide n1024 scratch 记录；显存较小机器上的成本高。</div>
+            </article>
+            <article class="card">
+              <div class="label">AMP sweep throughput</div>
+              <div class="value">约 29 samples/s</div>
+              <div class="detail">gated4d batch128；正式 wall time 以后续 run metrics/log 为准。</div>
+            </article>
+            <article class="card">
+              <div class="label">当前 GPU 利用率</div>
+              <div class="value">约 97-100%</div>
+              <div class="detail">说明 GPU 训练阶段已经基本吃满；仍需看精度。</div>
+            </article>
+          </div>
+        </section>
+
+        <section id="next" class="section">
+          <h2>5. 下一步策略</h2>
+          <p>现在的判断标准应该按顺序来，不要只追求“更大”。</p>
+          <ol>
+            <li>等 gated4d AMP run 完成，记录 wall time、best epoch、test mean range MAE、每个参数误差和 GPU trace。</li>
+            <li>如果 AMP 精度不劣于 FP32，再跑 residual4d AMP，同样记录完整报告。</li>
+            <li>做 gated4d + residual4d ensemble，比较 global ensemble 和 per-parameter ensemble。</li>
+            <li>如果 batch 128 已经稳定但还想提高等效 batch，可以试梯度累积，而不是直接把 batch 推到 OOM。</li>
+            <li>如果要继续提升物理反演能力，优先扩 pure-wide 样本和更合理的 high-sensitivity 区域采样，再考虑更大网络。</li>
+          </ol>
+          <div class="callout">
+            当前最重要的报告内容应该包括：训练耗时、GPU 峰值显存、samples/s、best epoch、test 总误差、五个参数分别的误差、和上一条 run 的差异。只报一个总 MAE 不够。
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">Training and GPU guide for LNO327 inverse fitting runs.</footer>
+</body>
+</html>

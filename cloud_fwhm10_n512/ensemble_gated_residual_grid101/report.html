@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang='zh-CN'>
+<head>
+<meta charset='utf-8'>
+<title>LNO327 CNN 模型融合报告</title>
+<style>
+body{font:13px/1.45 'Microsoft YaHei',Arial,sans-serif;margin:24px;color:#202124;background:#fbfaf6}
+h1{font-size:24px;margin:0 0 8px}h2{font-size:17px;margin:22px 0 8px;border-bottom:1px solid #d9d7ce;padding-bottom:4px}
+.note{color:#5f6368;margin:0 0 18px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:12px 0}
+.card{border:1px solid #d9d7ce;background:#fff;padding:10px}.metric{font-size:22px;font-weight:700}
+table{border-collapse:collapse;width:100%;background:#fff;margin:8px 0 16px}th,td{border:1px solid #d9d7ce;padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#ecebe4}code{background:#efeee8;padding:1px 4px}
+</style>
+</head>
+<body>
+<h1>LNO327 CNN 模型融合报告</h1>
+<p class='note'>在验证集上选择各模型的凸组合权重，然后只在测试集上评估一次。核心指标是参数范围归一化 MAE，越低越好。</p>
+<div class='cards'>
+<div class='card'><div>验证集 mean range MAE</div><div class='metric'>4.44%</div></div>
+<div class='card'><div>测试集 mean range MAE</div><div class='metric'>4.20%</div></div>
+<div class='card'><div>测试整体 MAE</div><div class='metric'>0.3372</div></div>
+<div class='card'><div>测试整体 RMSE</div><div class='metric'>0.8263</div></div>
+</div>
+<h2>模型权重</h2>
+<table><tr><th>模型</th><th>权重</th></tr>
+<tr><td>gated4d</td><td>0.090</td></tr>
+<tr><td>residual4d_heads</td><td>0.910</td></tr>
+</table>
+<h2>测试集分参数误差</h2>
+<table><tr><th>参数</th><th>MAE</th><th>RMSE</th><th>R2</th><th>MAE/range</th></tr>
+<tr><td>SJc</td><td>1.174</td><td>1.809</td><td>0.959</td><td>3.92%</td></tr>
+<tr><td>SJ1a</td><td>0.1391</td><td>0.1791</td><td>0.985</td><td>2.41%</td></tr>
+<tr><td>SJ1b</td><td>0.1985</td><td>0.2548</td><td>0.979</td><td>2.65%</td></tr>
+<tr><td>SJ2</td><td>0.154</td><td>0.207</td><td>0.990</td><td>1.95%</td></tr>
+<tr><td>SA</td><td>0.02</td><td>0.03563</td><td>0.614</td><td>10.07%</td></tr>
+</table>
+<h2>Paper-like 参考点预测</h2>
+<table><tr><th>参数</th><th>参考值</th><th>融合预测</th><th>偏差</th></tr>
+<tr><td>SJc</td><td>39.86</td><td>40.3</td><td>+0.4377</td></tr>
+<tr><td>SJ1a</td><td>2.36</td><td>2.396</td><td>+0.03633</td></tr>
+<tr><td>SJ1b</td><td>3.71</td><td>3.793</td><td>+0.08306</td></tr>
+<tr><td>SJ2</td><td>4.63</td><td>4.601</td><td>-0.029</td></tr>
+<tr><td>SA</td><td>-0.07</td><td>-0.05955</td><td>+0.01045</td></tr>
+</table>
+<h2>逐参数验证集权重</h2>
+<p class='note'>每个目标参数单独在验证集上选择融合权重，用来观察哪些模型更擅长哪个参数。</p>
+<table><tr><th>参数</th><th>权重</th><th>验证集 MAE/range</th><th>测试集 MAE/range</th></tr>
+<tr><td>SJc</td><td>0.000</td><td>4.60%</td><td>3.88%</td></tr>
+<tr><td>SJ1a</td><td>0.110</td><td>2.79%</td><td>2.41%</td></tr>
+<tr><td>SJ1b</td><td>0.120</td><td>2.42%</td><td>2.63%</td></tr>
+<tr><td>SJ2</td><td>0.000</td><td>2.04%</td><td>1.95%</td></tr>
+<tr><td>SA</td><td>0.390</td><td>9.99%</td><td>9.53%</td></tr>
+</table>
+<div class='cards'>
+<div class='card'><div>逐参数验证集 mean range MAE</div><div class='metric'>4.37%</div></div>
+<div class='card'><div>逐参数测试集 mean range MAE</div><div class='metric'>4.08%</div></div>
+</div>
+<h2>逐参数融合的 paper-like 参考点预测</h2>
+<table><tr><th>参数</th><th>参考值</th><th>融合预测</th><th>偏差</th></tr>
+<tr><td>SJc</td><td>39.86</td><td>40.32</td><td>+0.4597</td></tr>
+<tr><td>SJ1a</td><td>2.36</td><td>2.398</td><td>+0.03847</td></tr>
+<tr><td>SJ1b</td><td>3.71</td><td>3.792</td><td>+0.08226</td></tr>
+<tr><td>SJ2</td><td>4.63</td><td>4.6</td><td>-0.02966</td></tr>
+<tr><td>SA</td><td>-0.07</td><td>-0.06314</td><td>+0.006857</td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,88 @@
+{
+  "latest_report_update": "2026-05-27 11:38",
+  "format_contract": {
+    "primary_report": "docs/<collection>/<run>/index.html",
+    "metrics": "docs/<collection>/<run>/metrics.json",
+    "supplementary": [
+      "report.md",
+      "report.html",
+      "png/json artifacts"
+    ]
+  },
+  "collections": {
+    "posterior_24h": [
+      {
+        "slug": "posterior_predictive",
+        "title": "LNO327 posterior diagnostics",
+        "category": "后验推断",
+        "summary": "包含可视化报告和训练产物。",
+        "href": "posterior_24h/posterior_predictive/index.html",
+        "links": [
+          {
+            "href": "posterior_24h/posterior_predictive/index.html",
+            "label": "HTML 入口"
+          }
+        ],
+        "updated": "2026-05-27 11:38"
+      },
+      {
+        "slug": "npe_encoder_flow",
+        "title": "LNO327 posterior CNN report",
+        "category": "后验推断",
+        "summary": "test mean range MAE = 8.98%，MAE = 0.9865，68% coverage = 71.8%，best epoch = 87",
+        "href": "posterior_24h/npe_encoder_flow/index.html",
+        "links": [
+          {
+            "href": "posterior_24h/npe_encoder_flow/index.html",
+            "label": "HTML 入口"
+          },
+          {
+            "href": "posterior_24h/npe_encoder_flow/metrics.json",
+            "label": "metrics"
+          },
+          {
+            "href": "posterior_24h/npe_encoder_flow/01_training_curve.png",
+            "label": "训练曲线"
+          }
+        ],
+        "updated": "2026-05-27 04:47"
+      },
+      {
+        "slug": "uncertainty_cnn",
+        "title": "LNO327 posterior CNN report",
+        "category": "后验推断",
+        "summary": "test mean range MAE = 1.89%，MAE = 0.232，68% coverage = 81.1%，best epoch = 177",
+        "href": "posterior_24h/uncertainty_cnn/index.html",
+        "links": [
+          {
+            "href": "posterior_24h/uncertainty_cnn/index.html",
+            "label": "HTML 入口"
+          },
+          {
+            "href": "posterior_24h/uncertainty_cnn/metrics.json",
+            "label": "metrics"
+          },
+          {
+            "href": "posterior_24h/uncertainty_cnn/01_training_curve.png",
+            "label": "训练曲线"
+          }
+        ],
+        "updated": "2026-05-27 04:26"
+      },
+      {
+        "slug": "data_n2048",
+        "title": "n=2048 data report",
+        "category": "数据生成",
+        "summary": "包含可视化报告和训练产物。",
+        "href": "posterior_24h/data_n2048/index.html",
+        "links": [
+          {
+            "href": "posterior_24h/data_n2048/index.html",
+            "label": "HTML 入口"
+          }
+        ],
+        "updated": "2026-05-27 03:45"
+      }
+    ]
+  }
+}

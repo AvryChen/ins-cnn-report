@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>LNO327 AI Handoff / 任务交接说明</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --panel: #ffffff;
+      --ink: #202124;
+      --muted: #5f6368;
+      --line: #d9d7ce;
+      --accent: #0f766e;
+      --warn: #9a3412;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font: 13px/1.45 "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+    }
+    header {
+      padding: 22px 28px 12px;
+      background: #fcfcfa;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    main { max-width: 1500px; padding: 18px 28px 42px; }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    h2 { margin: 26px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--line); font-size: 18px; }
+    h3 { margin: 18px 0 8px; color: var(--warn); font-size: 15px; }
+    p { margin: 8px 0; }
+    .sub, .small { color: var(--muted); }
+    .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+    .card { border: 1px solid var(--line); background: var(--panel); padding: 10px 12px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { color: var(--accent); font-size: 22px; font-weight: 700; margin: 2px 0; }
+    .detail { color: var(--muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); margin: 8px 0 14px; }
+    th, td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+    th { background: #ecebe4; }
+    tr:nth-child(even) td { background: #fbfbf8; }
+    code { background: #efeee8; padding: 1px 4px; border-radius: 3px; }
+    pre { background: #efeee8; border: 1px solid var(--line); padding: 10px; overflow: auto; white-space: pre-wrap; }
+    .note { background: #fffaf0; border-left: 4px solid #d97706; padding: 10px 12px; margin: 12px 0; }
+    .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+    a { color: var(--accent); font-weight: 700; text-decoration: none; }
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>LNO327 AI Handoff / 任务交接说明</h1>
+  <div class="sub">快照日期：2026-05-26。用途：让之后接手的 AI 或人类工程师快速理解当前任务、结果、脚本、报告流和 GPU 瓶颈。</div>
+</header>
+<main>
+  <section>
+    <div class="cards">
+      <div class="card"><div class="label">当前研究对象</div><div class="value">LNO327</div><div class="detail">La3Ni2O7 spin-wave inverse fitting</div></div>
+      <div class="card"><div class="label">当前最好结果</div><div class="value">2.3839%</div><div class="detail">pure-wide n1024 4D per-param ensemble</div></div>
+      <div class="card"><div class="label">当前 GPU</div><div class="value">4GB</div><div class="detail">GTX 1050 Ti，batch 32 接近满显存</div></div>
+      <div class="card"><div class="label">推荐显存</div><div class="value">24GB+</div><div class="detail">16GB 可用，24GB 明显更高效，32GB 更理想</div></div>
+    </div>
+    <div class="note">
+      当前流程已经有效：AI 在本机后台训练，生成 HTML 报告，同步到 Tailscale 目录，并用 ReportSender 发给用户。
+      主要瓶颈已经从“模型路线是否可行”变成“显存/算力不足导致实验吞吐低”。
+    </div>
+  </section>
+
+  <section>
+    <h2>项目目标</h2>
+    <p>用 Sunny.jl 生成 La3Ni2O7 / LNO327 的 spin-wave spectra，再训练 CNN 模型从谱图反推出交换参数：</p>
+    <pre>[SJc, SJ1a, SJ1b, SJ2, SA]</pre>
+    <table>
+      <tr><th>参数</th><th>含义</th><th>wide 目标范围</th></tr>
+      <tr><td>SJc</td><td>双层内上下 Ni 之间的 c 方向/层间交换，代码中为 <code>Bond(1,2,[0,0,0])</code></td><td>25 到 55</td></tr>
+      <tr><td>SJ1a</td><td>面内最近邻 a/H 方向交换，代码中为 <code>Bond(atom,atom,[1,0,0])</code></td><td>0.2 到 6.0</td></tr>
+      <tr><td>SJ1b</td><td>面内最近邻 b/K 方向交换，代码中为 <code>Bond(atom,atom,[0,1,0])</code></td><td>0.5 到 8.0</td></tr>
+      <tr><td>SJ2</td><td>面内对角次近邻交换，代码中作用于 <code>[1,1,0]</code> 和 <code>[1,-1,0]</code></td><td>1.0 到 9.0</td></tr>
+      <tr><td>SA</td><td>单离子各向异性，代码中为 <code>SA*S[1]^2</code></td><td>-0.20 到 -0.001</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>当前数据结构</h2>
+    <table>
+      <tr><th>数据</th><th>路径</th><th>结构</th><th>说明</th></tr>
+      <tr>
+        <td>pure-wide n1024 主数据集</td>
+        <td><code>data/lno327_inverse_4d_wide_extra_augtrain_n1024_q160_e180_h81_k121_l5.h5</code></td>
+        <td><code>params (1024,5)</code><br><code>figure3/spectra (1024,160,180)</code><br><code>figure4d/volumes (1024,10,5,81,121)</code></td>
+        <td>split 为 870/77/77；extra pure-wide 512 样本全进 train，原 wide val/test 保持不变。</td>
+      </tr>
+      <tr>
+        <td>wide n512 anchor</td>
+        <td><code>data/lno327_inverse_4d_wide_n512_q160_e180_h81_k121_l5.h5</code></td>
+        <td><code>figure3/spectra (512,160,180)</code><br><code>figure4d/volumes (512,10,5,81,121)</code></td>
+        <td>用于 wide 评估与 test split 对照。</td>
+      </tr>
+      <tr>
+        <td>旧 Fig.2+Fig.3 n512</td>
+        <td><code>data/lno327_inverse_fig2fig3_n512_q160_e180_h81_k121.h5</code></td>
+        <td><code>figure2/maps (512,10,81,121)</code><br><code>figure3/spectra (512,160,180)</code></td>
+        <td>早期 2D maps 路线；当前主线已转向 4D volume。</td>
+      </tr>
+    </table>
+    <p class="small">注意：<code>data/</code> 和 <code>runs/</code> 不进 git。新机器 clone 后要重新生成数据，或手动拷贝这些目录。</p>
+  </section>
+
+  <section>
+    <h2>当前最好结果</h2>
+    <table>
+      <tr><th>run</th><th>test mean range MAE</th><th>说明</th></tr>
+      <tr><td>scratch gated4d seed20260705</td><td>2.8056%</td><td>pure-wide n1024 从头训练；best epoch 275。</td></tr>
+      <tr><td>scratch residual4d seed20260706</td><td>2.8354%</td><td>pure-wide n1024 从头训练；best epoch 280。</td></tr>
+      <tr><td>scratch gated + residual 二模型 per-param ensemble</td><td>2.4242%</td><td>说明二者误差明显互补。</td></tr>
+      <tr><td>scratch + old seed2/seed3 四模型 per-param ensemble</td><td><b>2.3839%</b></td><td>当前总最好；old seed 主要帮助 SJ2/SA。</td></tr>
+    </table>
+    <p>最佳结果目录：</p>
+    <pre>runs/lno327_inverse_cnn_weakpeak_n512/wide_extra_augtrain_scratch_plus_old_seed2_seed3_ensemble_grid201</pre>
+  </section>
+
+  <section>
+    <h2>当前正在运行的任务</h2>
+    <table>
+      <tr><th>项目</th><th>值</th></tr>
+      <tr><td>run</td><td><code>gated4d_wide_extra_augtrain_scratch_e280_aux015_seed20260707</code></td></tr>
+      <tr><td>目的</td><td>补一个新的 pure-wide n1024 scratch gated4d seed，期望给 ensemble 提供新的误差互补。</td></tr>
+      <tr><td>输出目录</td><td><code>runs/lno327_inverse_cnn_weakpeak_n512/gated4d_wide_extra_augtrain_scratch_e280_aux015_seed20260707</code></td></tr>
+      <tr><td>已知状态</td><td>GPU 100%，显存约 3.8GB/4GB；报告生成时日志到 epoch 1。</td></tr>
+      <tr><td>心跳自动化</td><td><code>monitor-lno327-gated4d-scratch-seed20260707</code> 每 90 分钟检查一次，并刷新 HTML 报告。</td></tr>
+    </table>
+    <pre>Get-Content runs\lno327_inverse_cnn_weakpeak_n512\gated4d_wide_extra_augtrain_scratch_e280_aux015_seed20260707\task.log -Tail 40 -Encoding UTF8
+nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu --format=csv</pre>
+  </section>
+
+  <section>
+    <h2>工程工作流</h2>
+    <div class="grid2">
+      <div>
+        <h3>训练与评估</h3>
+        <table>
+          <tr><th>脚本</th><th>用途</th></tr>
+          <tr><td><code>scripts/lno327_generate_inverse_dataset.jl</code></td><td>生成 Fig.3 / Fig.2 / 4D HDF5 数据集；支持 wide ranges 和 4D volume。</td></tr>
+          <tr><td><code>scripts/lno327_run_cnn_task.py</code></td><td>耐久训练 wrapper：写 <code>task.log</code>、生成 <code>task_report.html</code>、可调用 ReportSender。</td></tr>
+          <tr><td><code>inverse_spectrum/lno327_cnn.py</code></td><td>CNN 主训练代码；包含 <code>gated4d</code>、<code>param_gated4d</code>、<code>residual4d</code>、实时 <code>cnn_best.pt</code>。</td></tr>
+          <tr><td><code>inverse_spectrum/ensemble_lno327_cnn.py</code></td><td>validation-selected global/per-param ensemble。</td></tr>
+          <tr><td><code>scripts/lno327_tune_cnn_batch.py</code></td><td>探测当前 GPU 可用 batch size。</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>报告与同步</h3>
+        <table>
+          <tr><th>脚本</th><th>用途</th></tr>
+          <tr><td><code>scripts/lno327_write_4d_final_report.py</code></td><td>中文总报告，当前最好结果写在这里。</td></tr>
+          <tr><td><code>scripts/lno327_write_data_parameter_report.py</code></td><td>参数和 HDF5 数据结构说明。</td></tr>
+          <tr><td><code>scripts/lno327_write_training_visual_report.py</code></td><td>训练 loss 曲线和 attention 图总览。</td></tr>
+          <tr><td><code>scripts/lno327_sync_public_reports.py</code></td><td>把 HTML 和图片资源同步到 <code>runs/tailscale_public</code>，供 Tailscale 远程访问。</td></tr>
+          <tr><td><code>D:\DEV\Report_sender</code></td><td>训练结束或阶段报告完成后发邮件通知用户。</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>远程报告入口</h2>
+    <table>
+      <tr><th>报告</th><th>本机路径</th><th>Tailscale URL</th></tr>
+      <tr><td>总报告</td><td><code>runs/lno327_4d_task/lno327_4d_final_report.html</code></td><td><a href="http://desktop-jc2nlcj.tail6fa8f5.ts.net:8765/lno327_4d_final_report.html">打开</a></td></tr>
+      <tr><td>参数/数据结构报告</td><td><code>runs/lno327_4d_task/lno327_data_parameter_report.html</code></td><td><a href="http://desktop-jc2nlcj.tail6fa8f5.ts.net:8765/lno327_data_parameter_report.html">打开</a></td></tr>
+      <tr><td>训练可视化总览</td><td><code>runs/lno327_4d_task/lno327_training_visual_report.html</code></td><td><a href="http://desktop-jc2nlcj.tail6fa8f5.ts.net:8765/lno327_training_visual_report.html">打开</a></td></tr>
+      <tr><td>报告入口</td><td><code>runs/tailscale_public/index.html</code></td><td><a href="http://desktop-jc2nlcj.tail6fa8f5.ts.net:8765/index.html">打开</a></td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>下一步建议</h2>
+    <ol>
+      <li>等 <code>seed20260707</code> 完成后，先把它加入当前最佳 ensemble，比较是否低于 2.3839%。</li>
+      <li>刷新 <code>lno327_4d_final_report.html</code> 和 <code>lno327_training_visual_report.html</code>，同步 Tailscale，并通过 ReportSender 发阶段报告。</li>
+      <li>若新 seed 有互补性，继续补一个 <code>residual4d</code> scratch seed；若没有，转向第二套 fixed test split / stratified split，验证 2.38% 是否稳健。</li>
+      <li>显卡升级前，不建议同时跑多个 GPU 任务；4GB 显存已经几乎没有余量。</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>显存瓶颈与推荐显卡</h2>
+    <p>当前实测：GTX 1050 Ti 4GB 可以跑 full-resolution 4D 模型，但 batch 32 已接近满显存；batch 48/64/96/128 在 pure-wide n1024 gated4d 控制数据上会爆显存。单个 scratch 280 epoch 约 10 小时量级。</p>
+    <table>
+      <tr><th>显存档位</th><th>可行性</th><th>适合做什么</th><th>代表 GPU</th></tr>
+      <tr><td>4GB</td><td>最低可跑，但效率低且易 OOM</td><td>单任务、batch 32、当前模型/分辨率；不能舒服探索更大模型。</td><td>当前 GTX 1050 Ti</td></tr>
+      <tr><td>8GB</td><td>勉强推荐下限</td><td>当前模型会更稳，但对 batch、分辨率、模型宽度仍有限制。</td><td>RTX 4060/5060 8GB 类</td></tr>
+      <tr><td>12GB</td><td>可用</td><td>适合继续当前路线，能减少 OOM，仍不适合大规模并行实验。</td><td>RTX 4070 12GB 类</td></tr>
+      <tr><td>16GB</td><td>实际推荐起点</td><td>当前 full 4D 训练更稳，可尝试 batch 64+、稍大 embedding、更高分辨率小实验。</td><td>RTX 5060 Ti 16GB、RTX 5070 Ti 16GB、RTX 5080 16GB</td></tr>
+      <tr><td>24GB</td><td><b>推荐甜点</b></td><td>适合高效完成本项目：多 seed、较大 batch、更复杂 attention/encoder、较少等待。</td><td>RTX 4090 24GB；二手 RTX 3090 24GB 也可考虑</td></tr>
+      <tr><td>32GB</td><td>理想消费级</td><td>适合提高 H/K/L 或能量切片分辨率，尝试更宽模型，并保留更多显存余量。</td><td>RTX 5090 32GB</td></tr>
+      <tr><td>48GB+</td><td>工作站级</td><td>适合多实验排队、超高分辨率 4D、较大模型和更系统的超参搜索。</td><td>RTX 6000 Ada 48GB、RTX PRO 6000 Blackwell 96GB</td></tr>
+    </table>
+    <p><b>结论：</b>如果只买一张卡，建议至少 16GB；如果目标是“明显提升工作效率并减少 AI 等待时间”，推荐 24GB；如果预算允许且希望未来继续扩大 4D 输入和模型，推荐 32GB。工作站 48GB/96GB 不是当前必要条件，但会显著提高实验吞吐。</p>
+    <p class="small">规格来源：NVIDIA 官方 GeForce/RTX 产品页面和数据表；具体价格和供货会随地区变化，购买前应按本地价格再决策。</p>
+    <ul>
+      <li><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/">NVIDIA GeForce RTX 5060 Family</a></li>
+      <li><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/">NVIDIA GeForce RTX 5070 Family</a></li>
+      <li><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/">NVIDIA GeForce RTX 5080</a></li>
+      <li><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/">NVIDIA GeForce RTX 4090</a></li>
+      <li><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/">NVIDIA GeForce RTX 5090</a></li>
+      <li><a href="https://www.nvidia.com/en-us/design-visualization/rtx-6000/">NVIDIA RTX 6000 Ada Generation</a></li>
+      <li><a href="https://www.nvidia.com/en-us/products/workstations/rtx-pro-6000/">NVIDIA RTX PRO 6000 Blackwell</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Git 注意事项</h2>
+    <table>
+      <tr><th>应提交</th><td><code>inverse_spectrum/</code>、<code>src/</code>、<code>scripts/</code>、<code>tests/</code>、<code>docs/</code>、README/summary 等源码和文档。</td></tr>
+      <tr><th>不要提交</th><td><code>data/</code>、<code>runs/</code>、<code>*.pt</code>、<code>*.h5</code>、本地虚拟环境、Julia runtime/depot、PDF 参考文献。</td></tr>
+      <tr><th>当前新增 handoff</th><td><code>docs/lno327_ai_handoff.html</code></td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "status": "running",
+  "posterior": "mdn",
+  "epoch": 85,
+  "epochs": 90,
+  "train_nll": -7.511870733896891,
+  "val_nll": -7.061937468392508,
+  "best_val_nll": -7.778472014835903,
+  "best_epoch": 84,
+  "stale_epochs": 1,
+  "batch_size": 48,
+  "hidden": 96,
+  "embedding": 192,
+  "amp": true,
+  "amp_dtype": "float16",
+  "elapsed_s": 1171.616262435913,
+  "run_dir": "/home/linux/work/ins-cnn/runs/posterior_24h/mdn_n2048_b48"
+}

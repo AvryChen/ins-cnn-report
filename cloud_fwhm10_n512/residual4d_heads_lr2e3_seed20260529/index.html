@@ -1,0 +1,30 @@
+<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'>
+<title>LNO327 CNN 训练任务报告</title>
+<style>body{font:13px/1.45 'Microsoft YaHei',Arial,sans-serif;margin:24px;color:#202124}table{border-collapse:collapse;margin:8px 0 16px;width:100%}th,td{border:1px solid #d9d7ce;padding:5px 7px;text-align:left;vertical-align:top}th{background:#ecebe4;width:260px}pre{background:#f3f2ec;padding:10px;white-space:pre-wrap}.figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;margin:10px 0}figure{margin:0;border:1px solid #d9d7ce;background:#fff;padding:8px}img{display:block;max-width:100%;height:auto}figcaption{margin-top:5px;color:#5f6368}h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #d9d7ce;padding-bottom:4px}</style>
+</head><body>
+<h1>LNO327 CNN 训练任务报告</h1>
+<h2>任务</h2>
+<table><tr><th>status</th><td>done</td></tr><tr><th>elapsed</th><td>0.5 min</td></tr><tr><th>output</th><td>runs/cloud_fwhm10_n512/residual4d_fwhm10_heads_lr2e3_aux000_seed20260529_b64</td></tr></table>
+<h2>结果</h2>
+<table><tr><th>test mean range-normalized MAE</th><td>4.34%</td></tr><tr><th>test overall MAE</th><td>0.336047 meV</td></tr><tr><th>test overall RMSE</th><td>0.827783 meV</td></tr><tr><th>best epoch</th><td>46</td></tr><tr><th>best val loss</th><td>0.00502176</td></tr></table>
+<h2>解释性指标</h2>
+<table><tr><th>gate test mean</th><td>0.387334</td></tr><tr><th>gate test std</th><td>0.275082</td></tr></table>
+<h2>可视化</h2>
+<div class='figgrid'>
+<figure><img src='01_training_curve.png' alt='训练 loss 曲线'><figcaption>训练 loss 曲线</figcaption></figure>
+<figure><img src='02_energy_attention.png' alt='4D attention 权重'><figcaption>4D attention 权重</figcaption></figure>
+</div>
+<h2>日志尾部</h2>
+<pre>[task] start mode=residual4d out=runs/cloud_fwhm10_n512/residual4d_fwhm10_heads_lr2e3_aux000_seed20260529_b64
+resumed full model from runs/cloud_fwhm10_n512/residual4d_wide_fwhm10_n512_warmfig3_e220_aux003_seed20260528_b64/cnn.pt
+trainable scope=heads trainable=28245/105365
+epoch 0001 train_loss=0.00511615 val_loss=0.00644652 best_val=0.00644652
+epoch 0010 train_loss=0.00371198 val_loss=0.00764856 best_val=0.00572341
+epoch 0020 train_loss=0.00341708 val_loss=0.00929948 best_val=0.00561049
+epoch 0030 train_loss=0.00333264 val_loss=0.00752896 best_val=0.00561049
+epoch 0040 train_loss=0.00304771 val_loss=0.0067093 best_val=0.00560116
+epoch 0050 train_loss=0.00291253 val_loss=0.00776701 best_val=0.00502176
+epoch 0060 train_loss=0.00283201 val_loss=0.00703528 best_val=0.00502176
+[task] best_epoch=46
+[task] test_mean_range_mae=0.0433738</pre>
+</body></html>

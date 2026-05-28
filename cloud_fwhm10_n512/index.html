@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FWHM=10 meV n=512 云端训练报告</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #667485;
+      --line: #d9e0e7;
+      --paper: #ffffff;
+      --bg: #f5f7fa;
+      --red: #d84a3a;
+      --yellow: #e2b93b;
+      --green: #2d9b73;
+      --blue: #2f6fcf;
+      --soft-blue: #eaf1ff;
+      --soft-green: #e9f7f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      padding: 30px max(22px, calc((100vw - 1180px) / 2)) 22px;
+      background:
+        linear-gradient(90deg, rgba(216,74,58,.18), rgba(226,185,59,.15), rgba(45,155,115,.15), rgba(47,111,207,.18)),
+        var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+    main {
+      width: min(1180px, calc(100vw - 44px));
+      margin: 22px auto 42px;
+      display: grid;
+      gap: 16px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(26px, 4vw, 42px); line-height: 1.08; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p { color: var(--muted); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+    .subtitle { margin-top: 10px; max-width: 860px; }
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+      margin-top: 18px;
+      max-width: 520px;
+    }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .panel, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .value { margin-top: 8px; font-size: 24px; font-weight: 750; }
+    .detail { margin-top: 8px; color: var(--muted); }
+    .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 13px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 650; width: 180px; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    a { color: var(--blue); font-weight: 650; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .links { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+    .links a { display: inline-flex; min-height: 28px; align-items: center; }
+    .note { color: var(--muted); }
+    .small { font-size: 13px; }
+    </style>
+</head>
+<body>
+  <header>
+    <h1>FWHM=10 meV n=512 云端训练报告</h1>
+    <p class="subtitle">Fig.3 path、4D maps、residual4d、ensemble 和 GPU sweep 的完整入口。</p>
+    <div class="bar" aria-hidden="true"></div>
+    <div class="pillrow">
+      <span class="pill">自动目录</span>
+      <span class="pill">10 个报告目录</span>
+      <span class="pill">index.html 为主入口</span>
+      <span class="pill">metrics.json 为指标</span>
+    </div>
+  </header>
+  <main>
+    
+    <section class="panel">
+      <h2>所有报告入口</h2>
+      <p>新报告只要复制到 <code>/home/linux/work/ins-cnn/docs/cloud_fwhm10_n512/&lt;run&gt;/index.html</code>，下次发布前会自动出现在这里。</p>
+      <table>
+        <thead><tr><th>类别</th><th>报告</th><th>更新时间</th></tr></thead>
+        <tbody>
+          <tr><th>模型比较</th><td><a href='model_comparison_seed20260527/index.html'>LNO327 FWHM=10 模型比较</a><p class='small'>当前比较中最好项：ensemble_gated_residual_fwhm10_grid101，mean range MAE = 4.20%</p><div class='links'><a href='model_comparison_seed20260527/index.html'>HTML 入口</a>
+<a href='model_comparison_seed20260527/metrics.json'>metrics</a></div></td><td class='small'>2026-05-26 23:45<br><code>model_comparison_seed20260527</code></td></tr><tr><th>模型比较</th><td><a href='model_comparison_seed20260527_plus_b128/index.html'>LNO327 FWHM=10 模型比较</a><p class='small'>当前比较中最好项：ensemble_gated_residual_fwhm10_grid101，mean range MAE = 4.20%</p><div class='links'><a href='model_comparison_seed20260527_plus_b128/index.html'>HTML 入口</a>
+<a href='model_comparison_seed20260527_plus_b128/metrics.json'>metrics</a></div></td><td class='small'>2026-05-26 21:50<br><code>model_comparison_seed20260527_plus_b128</code></td></tr><tr><th>基础模型</th><td><a href='fig3_seed20260527/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 6.69%，MAE = 0.698，best epoch = 254</p><div class='links'><a href='fig3_seed20260527/index.html'>HTML 入口</a>
+<a href='fig3_seed20260527/metrics.json'>metrics</a>
+<a href='fig3_seed20260527/report.md'>Markdown report</a>
+<a href='fig3_seed20260527/01_training_curve.png'>训练曲线</a></div></td><td class='small'>2026-05-26 21:07<br><code>fig3_seed20260527</code></td></tr><tr><th>基础模型</th><td><a href='gated4d_seed20260526/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 5.44%，MAE = 0.538，best epoch = 251</p><div class='links'><a href='gated4d_seed20260526/index.html'>HTML 入口</a>
+<a href='gated4d_seed20260526/metrics.json'>metrics</a>
+<a href='gated4d_seed20260526/report.md'>Markdown report</a>
+<a href='gated4d_seed20260526/01_training_curve.png'>训练曲线</a>
+<a href='gated4d_seed20260526/02_energy_attention.png'>能量注意力</a></div></td><td class='small'>2026-05-26 21:07<br><code>gated4d_seed20260526</code></td></tr><tr><th>residual4d</th><td><a href='residual4d_heads_lr2e4_seed20260531/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 4.25%，MAE = 0.336，best epoch = 9</p><div class='links'><a href='residual4d_heads_lr2e4_seed20260531/index.html'>HTML 入口</a>
+<a href='residual4d_heads_lr2e4_seed20260531/metrics.json'>metrics</a>
+<a href='residual4d_heads_lr2e4_seed20260531/report.md'>Markdown report</a>
+<a href='residual4d_heads_lr2e4_seed20260531/01_training_curve.png'>训练曲线</a>
+<a href='residual4d_heads_lr2e4_seed20260531/02_energy_attention.png'>能量注意力</a></div></td><td class='small'>2026-05-26 21:12<br><code>residual4d_heads_lr2e4_seed20260531</code></td></tr><tr><th>residual4d</th><td><a href='residual4d_heads_lr5e4_seed20260530/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 4.25%，MAE = 0.335，best epoch = 51</p><div class='links'><a href='residual4d_heads_lr5e4_seed20260530/index.html'>HTML 入口</a>
+<a href='residual4d_heads_lr5e4_seed20260530/metrics.json'>metrics</a>
+<a href='residual4d_heads_lr5e4_seed20260530/report.md'>Markdown report</a>
+<a href='residual4d_heads_lr5e4_seed20260530/01_training_curve.png'>训练曲线</a>
+<a href='residual4d_heads_lr5e4_seed20260530/02_energy_attention.png'>能量注意力</a></div></td><td class='small'>2026-05-26 21:11<br><code>residual4d_heads_lr5e4_seed20260530</code></td></tr><tr><th>residual4d</th><td><a href='residual4d_heads_lr2e3_seed20260529/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 4.34%，MAE = 0.336，best epoch = 46</p><div class='links'><a href='residual4d_heads_lr2e3_seed20260529/index.html'>HTML 入口</a>
+<a href='residual4d_heads_lr2e3_seed20260529/metrics.json'>metrics</a>
+<a href='residual4d_heads_lr2e3_seed20260529/report.md'>Markdown report</a>
+<a href='residual4d_heads_lr2e3_seed20260529/01_training_curve.png'>训练曲线</a>
+<a href='residual4d_heads_lr2e3_seed20260529/02_energy_attention.png'>能量注意力</a></div></td><td class='small'>2026-05-26 21:11<br><code>residual4d_heads_lr2e3_seed20260529</code></td></tr><tr><th>residual4d</th><td><a href='residual4d_warmfig3_seed20260528/index.html'>LNO327 CNN 训练任务报告</a><p class='small'>test mean range MAE = 4.67%，MAE = 0.41，best epoch = 97</p><div class='links'><a href='residual4d_warmfig3_seed20260528/index.html'>HTML 入口</a>
+<a href='residual4d_warmfig3_seed20260528/metrics.json'>metrics</a>
+<a href='residual4d_warmfig3_seed20260528/report.md'>Markdown report</a>
+<a href='residual4d_warmfig3_seed20260528/01_training_curve.png'>训练曲线</a>
+<a href='residual4d_warmfig3_seed20260528/02_energy_attention.png'>能量注意力</a></div></td><td class='small'>2026-05-26 21:10<br><code>residual4d_warmfig3_seed20260528</code></td></tr><tr><th>融合与 GPU</th><td><a href='gpu_sweep_seed20260527/index.html'>LNO327 Cloud GPU Sweep</a><p class='small'>GPU batch/AMP 吞吐测试，记录显存占用和训练速度。</p><div class='links'><a href='gpu_sweep_seed20260527/index.html'>HTML 入口</a>
+<a href='gpu_sweep_seed20260527/gpu_sweep.json'>GPU JSON</a></div></td><td class='small'>2026-05-26 21:19<br><code>gpu_sweep_seed20260527</code></td></tr><tr><th>融合与 GPU</th><td><a href='ensemble_gated_residual_grid101/index.html'>LNO327 CNN 模型融合报告</a><p class='small'>test mean range MAE = 4.20%，MAE = 0.337</p><div class='links'><a href='ensemble_gated_residual_grid101/index.html'>HTML 入口</a>
+<a href='ensemble_gated_residual_grid101/metrics.json'>metrics</a>
+<a href='ensemble_gated_residual_grid101/report.html'>HTML report</a></div></td><td class='small'>2026-05-26 21:12<br><code>ensemble_gated_residual_grid101</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'>
+<title>LNO327 CNN 训练任务报告</title>
+<style>body{font:13px/1.45 'Microsoft YaHei',Arial,sans-serif;margin:24px;color:#202124}table{border-collapse:collapse;margin:8px 0 16px;width:100%}th,td{border:1px solid #d9d7ce;padding:5px 7px;text-align:left;vertical-align:top}th{background:#ecebe4;width:260px}pre{background:#f3f2ec;padding:10px;white-space:pre-wrap}.figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;margin:10px 0}figure{margin:0;border:1px solid #d9d7ce;background:#fff;padding:8px}img{display:block;max-width:100%;height:auto}figcaption{margin-top:5px;color:#5f6368}h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #d9d7ce;padding-bottom:4px}</style>
+</head><body>
+<h1>LNO327 CNN 训练任务报告</h1>
+<h2>任务</h2>
+<table><tr><th>status</th><td>done</td></tr><tr><th>elapsed</th><td>4.5 min</td></tr><tr><th>output</th><td>runs/cloud_fwhm10_n512/gated4d_wide_fwhm10_n512_seed20260526_e280_b64</td></tr></table>
+<h2>结果</h2>
+<table><tr><th>test mean range-normalized MAE</th><td>5.44%</td></tr><tr><th>test overall MAE</th><td>0.537633 meV</td></tr><tr><th>test overall RMSE</th><td>1.23958 meV</td></tr><tr><th>best epoch</th><td>251</td></tr><tr><th>best val loss</th><td>0.00815346</td></tr></table>
+<h2>解释性指标</h2>
+<table><tr><th>gate test mean</th><td>0.544206</td></tr><tr><th>gate test std</th><td>0.392378</td></tr></table>
+<h2>可视化</h2>
+<div class='figgrid'>
+<figure><img src='01_training_curve.png' alt='训练 loss 曲线'><figcaption>训练 loss 曲线</figcaption></figure>
+<figure><img src='02_energy_attention.png' alt='4D attention 权重'><figcaption>4D attention 权重</figcaption></figure>
+</div>
+<h2>日志尾部</h2>
+<pre>[task] start mode=gated4d out=runs/cloud_fwhm10_n512/gated4d_wide_fwhm10_n512_seed20260526_e280_b64
+trainable scope=all trainable=105104/105104
+epoch 0001 train_loss=0.0797602 val_loss=0.0724131 best_val=0.0724131
+epoch 0010 train_loss=0.0566165 val_loss=0.0529494 best_val=0.0529494
+epoch 0020 train_loss=0.0403867 val_loss=0.0419567 best_val=0.0400385
+epoch 0030 train_loss=0.0343874 val_loss=0.0350953 best_val=0.0350953
+epoch 0040 train_loss=0.0305036 val_loss=0.0303596 best_val=0.0303596
+epoch 0050 train_loss=0.0250805 val_loss=0.0290477 best_val=0.0216337
+epoch 0060 train_loss=0.0165976 val_loss=0.0192715 best_val=0.0174057
+epoch 0070 train_loss=0.0141422 val_loss=0.0133741 best_val=0.0133741
+epoch 0080 train_loss=0.0143988 val_loss=0.0174868 best_val=0.0133741
+epoch 0090 train_loss=0.0116442 val_loss=0.011861 best_val=0.011861
+epoch 0100 train_loss=0.0126219 val_loss=0.0116058 best_val=0.0112541
+epoch 0110 train_loss=0.0100568 val_loss=0.0120471 best_val=0.0112541
+epoch 0120 train_loss=0.00931221 val_loss=0.0115577 best_val=0.0107939
+epoch 0130 train_loss=0.0105427 val_loss=0.011852 best_val=0.0107939
+epoch 0140 train_loss=0.0100431 val_loss=0.0118005 best_val=0.010355
+epoch 0150 train_loss=0.00916654 val_loss=0.0122473 best_val=0.010355
+epoch 0160 train_loss=0.00974009 val_loss=0.0112123 best_val=0.0102989
+epoch 0170 train_loss=0.00564826 val_loss=0.0126155 best_val=0.00966237
+epoch 0180 train_loss=0.00891416 val_loss=0.0111828 best_val=0.00966237
+epoch 0190 train_loss=0.00611002 val_loss=0.0126372 best_val=0.00901343
+epoch 0200 train_loss=0.00493435 val_loss=0.0118531 best_val=0.00901343
+epoch 0210 train_loss=0.00762247 val_loss=0.0180653 best_val=0.00901343
+epoch 0220 train_loss=0.00559751 val_loss=0.0111656 best_val=0.00901343
+epoch 0230 train_loss=0.00454703 val_loss=0.0137166 best_val=0.00819749
+epoch 0240 train_loss=0.00632582 val_loss=0.0107952 best_val=0.00819749
+epoch 0250 train_loss=0.00439569 val_loss=0.0131306 best_val=0.00819749
+epoch 0260 train_loss=0.00505711 val_loss=0.0113063 best_val=0.00815346
+epoch 0270 train_loss=0.00398756 val_loss=0.0145018 best_val=0.00815346
+epoch 0280 train_loss=0.00462386 val_loss=0.0127536 best_val=0.00815346
+[task] best_epoch=251
+[task] test_mean_range_mae=0.0544314</pre>
+</body></html>

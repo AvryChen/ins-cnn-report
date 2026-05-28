@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fig.3 与 4D 数据说明</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">返回报告首页</a>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">data tensors</div>
+          <h1>Fig.3、4D、narrow、wide 到底是什么</h1>
+          <p class="lead">这页解释模型吃进去的数据长什么样。关键点是：Fig.3 是沿高对称路径的一张谱图；4D 是多个能量、多个 L 层上的 H-K map。后者信息更多，也更接近真实 INS 数据。</p>
+        </div>
+        <aside class="status-panel">
+          <strong>当前核心数据</strong>
+          <p>Fig.3: sample x Q_path x E<br>4D: sample x E x L x H x K</p>
+          <div class="rainbow"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="training guide">
+      <a href="./index.html">总览</a>
+      <a href="./parameters.html">参数</a>
+      <a href="./data.html" aria-current="page">Fig.3 与 4D 数据</a>
+      <a href="./cnn.html">CNN 算法</a>
+      <a href="./training.html">训练与指标</a>
+    </nav>
+  </div>
+
+  <main>
+    <div class="layout">
+      <aside class="toc">
+        <strong>本页目录</strong>
+        <a href="#fig3">Fig.3 路径谱</a>
+        <a href="#four-d">4D volume</a>
+        <a href="#reshape">4D 如何喂给 CNN</a>
+        <a href="#splits">narrow / wide / pure-wide</a>
+        <a href="#fig2">Fig.2 maps 关系</a>
+      </aside>
+
+      <div class="content">
+        <section id="fig3" class="section">
+          <h2>1. Fig.3 路径谱</h2>
+          <p>Fig.3 数据可以理解成一张二维图：横轴是论文里的高对称 Q 路径，纵轴是能量 E，颜色是强度 S(Q,E)。当前常见形状是：</p>
+          <div class="formula">figure3/spectra: (n_samples, 160, 180)</div>
+          <p>其中 160 是路径采样点数，180 是能量 bin 数。CNN 看到的 Fig.3 输入会多一个 channel 维度：</p>
+          <div class="formula">Fig.3 CNN input: (batch, 1, 160, 180)</div>
+          <p>Fig.3 的优点是稳定、数据量小、容易训练。缺点是它把真实四维 Q 空间压成一条路径，很多 H/K/L 方向的信息被丢掉。用户之前指出“固定 Q 路径会降低信号强度、减少拟合数据量”，这个判断是对的。</p>
+        </section>
+
+        <section id="four-d" class="section">
+          <h2>2. 4D volume</h2>
+          <p>4D 数据更接近真实实验的思路：不是只看一条 Q 路径，而是在多个能量切片、多个 L 层上看 H-K 面的强度图。当前常见形状是：</p>
+          <div class="formula">figure4d/volumes: (n_samples, 10, 5, 81, 121)</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>维度</th>
+                  <th>大小</th>
+                  <th>含义</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>sample</td>
+                  <td>n_samples</td>
+                  <td>不同参数生成的不同谱图样本。</td>
+                </tr>
+                <tr>
+                  <td>energy</td>
+                  <td>10</td>
+                  <td>选取 10 个能量切片，每个切片是一组 H-K map。</td>
+                </tr>
+                <tr>
+                  <td>L</td>
+                  <td>5</td>
+                  <td>不同 L 层，用来保留层间方向的信息。</td>
+                </tr>
+                <tr>
+                  <td>H</td>
+                  <td>81</td>
+                  <td>H 方向网格点。</td>
+                </tr>
+                <tr>
+                  <td>K</td>
+                  <td>121</td>
+                  <td>K 方向网格点。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            4D 的核心价值是“多给模型看几个角度”。如果某个参数对 Fig.3 路径上的强峰不敏感，它仍然可能改变某些能量/L 切片里的弱峰或分布形状。
+          </div>
+        </section>
+
+        <section id="reshape" class="section">
+          <h2>3. 4D 如何喂给 CNN</h2>
+          <p>当前 PyTorch CNN 使用的是二维卷积。为了把 4D volume 喂进去，代码把 energy 和 L 两个维度合并成 channel：</p>
+          <div class="formula">(sample, energy, L, H, K) -> (sample, energy * L, H, K)
+10 * 5 = 50 channels</div>
+          <p>也就是说，模型看到的是一张 50 通道的 H-K 图。每个通道对应某个能量和某个 L 层。后续 gated4d / residual4d 分支会逐通道编码，再用 attention 选择哪些切片更重要。</p>
+          <div class="flow">
+            <div class="step">
+              <span class="badge">1</span>
+              <div>
+                <strong>Sunny 生成 volume</strong>
+                <p>每个参数点得到 10 x 5 x 81 x 121 的强度体。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">2</span>
+              <div>
+                <strong>weak-peak transform</strong>
+                <p>先压缩强峰、抬高弱峰，避免网络只学最亮区域。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">3</span>
+              <div>
+                <strong>合并成 50 通道</strong>
+                <p>把能量和 L 的组合当成 CNN channel。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">4</span>
+              <div>
+                <strong>和 Fig.3 分支融合</strong>
+                <p>Fig.3 提供主路径证据，4D 补充空间分布证据。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="splits" class="section">
+          <h2>4. narrow / wide / pure-wide 的区别</h2>
+          <p>这三个词描述的是训练数据怎么采样、怎么划分，不是 CNN 本身。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>人话解释</th>
+                  <th>用途</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>narrow</td>
+                  <td>较窄的参数范围，接近早期围绕论文参考点的探索范围。</td>
+                  <td>验证方法、调模型、建立 baseline。</td>
+                </tr>
+                <tr>
+                  <td>wide</td>
+                  <td>更宽的参数范围，例如 SJc 25 到 55、SJ2 1 到 9。</td>
+                  <td>检验模型能否泛化到更真实的反演空间。</td>
+                </tr>
+                <tr>
+                  <td>wide augmented train</td>
+                  <td>把 narrow 样本也并入训练集，wide 的 validation/test 保持不变。</td>
+                  <td>提高训练样本数，但混入 narrow 分布。</td>
+                </tr>
+                <tr>
+                  <td>pure-wide extra augtrain</td>
+                  <td>额外生成 pure-wide 样本全部放进 train，原 wide validation/test 不变。</td>
+                  <td>更干净地回答“扩大 wide 样本数有没有帮助”。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout blue">
+            目前更值得继续推进的是 pure-wide / 4D 路线，因为它更接近真实目标：在宽参数空间内，从更完整的谱图数据反演参数。
+          </div>
+        </section>
+
+        <section id="fig2" class="section">
+          <h2>5. Fig.2 maps 和 4D 的关系</h2>
+          <p>项目早期也使用过 Fig.2 maps。它可以理解为固定能量下的 H-K 图，通常是 2D constant-energy maps。4D volume 则把这个思想扩展了：不仅有 H-K，还有多个能量和多个 L 层。</p>
+          <div class="two-col">
+            <div class="card">
+              <div class="mini-title">Fig.2 maps</div>
+              <p>少数能量切片上的 H-K 图。信息比 Fig.3 多，但 L 和能量覆盖仍有限。</p>
+            </div>
+            <div class="card">
+              <div class="mini-title">4D volume</div>
+              <p>多个能量、多个 L 层上的 H-K 图。信息更完整，计算和显存成本也更高。</p>
+            </div>
+          </div>
+          <p>所以“Fig.2 maps + Fig.3 path”可以看作通往 4D 的中间方案；当前主线已经把重点转向 4D + Fig.3。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">Data guide for Fig.3 path spectra and 4D INS maps.</footer>
+</body>
+</html>

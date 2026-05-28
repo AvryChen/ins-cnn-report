@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>LNO327 Cloud GPU Sweep</title>
+<style>
+body{font:14px/1.55 "Microsoft YaHei",Arial,sans-serif;margin:24px;background:#fbfaf6;color:#202124}
+table{border-collapse:collapse;width:100%;background:#fff}th,td{border:1px solid #d9d7ce;padding:7px 8px;text-align:left}th{background:#ecebe4}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}.card{background:#fff;border:1px solid #d9d7ce;padding:12px}.metric{font-size:22px;font-weight:700}
+</style></head>
+<body>
+<h1>LNO327 Cloud GPU Sweep</h1>
+<p>这个页面只测显存和吞吐，不代表最终精度。目标是找到 32GB 显存下值得正式训练的 batch/model 配置。</p>
+<div class="cards">
+<div class="card"><div>推荐模式</div><div class="metric">residual4d</div></div>
+<div class="card"><div>推荐 batch</div><div class="metric">128</div></div>
+<div class="card"><div>推荐模型尺寸</div><div class="metric">hidden=32, emb=64</div></div>
+<div class="card"><div>峰值显存</div><div class="metric">27087.8681640625 MB</div></div>
+</div>
+<table><thead><tr><th>mode</th><th>hidden</th><th>embedding</th><th>batch</th><th>状态</th><th>峰值显存 MB</th><th>samples/s</th><th>s/step</th><th>参数量</th></tr></thead><tbody>
+<tr><td>gated4d</td><td>32</td><td>64</td><td>64</td><td>OK</td><td>14060.80859375</td><td>39.84826422292071</td><td>1.6060925424999368</td><td>105104</td></tr><tr><td>gated4d</td><td>32</td><td>64</td><td>96</td><td>OK</td><td>20572.53955078125</td><td>52.26283162632834</td><td>1.8368694732498625</td><td>105104</td></tr><tr><td>gated4d</td><td>32</td><td>64</td><td>128</td><td>OK</td><td>27087.8916015625</td><td>82.72131261997318</td><td>1.5473642275001112</td><td>105104</td></tr><tr><td>gated4d</td><td>32</td><td>64</td><td>160</td><td>cuda_out_of_memory</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>gated4d</td><td>32</td><td>64</td><td>192</td><td>cuda_out_of_memory</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>gated4d</td><td>48</td><td>96</td><td>64</td><td>OK</td><td>20514.2158203125</td><td>45.25964113446547</td><td>1.4140633552497093</td><td>234064</td></tr><tr><td>gated4d</td><td>48</td><td>96</td><td>96</td><td>OK</td><td>30253.42333984375</td><td>58.84109612896633</td><td>1.6315127745001519</td><td>234064</td></tr><tr><td>gated4d</td><td>48</td><td>96</td><td>128</td><td>cuda_out_of_memory</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>gated4d</td><td>64</td><td>128</td><td>32</td><td>OK</td><td>14001.04296875</td><td>24.78382189370878</td><td>1.2911648629997217</td><td>413968</td></tr><tr><td>gated4d</td><td>64</td><td>128</td><td>64</td><td>OK</td><td>26963.5849609375</td><td>35.6146695408689</td><td>1.7970123217501168</td><td>413968</td></tr><tr><td>gated4d</td><td>64</td><td>128</td><td>96</td><td>cuda_out_of_memory</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>residual4d</td><td>32</td><td>64</td><td>64</td><td>OK</td><td>14060.8017578125</td><td>49.35025758341233</td><td>1.296852400249918</td><td>105365</td></tr><tr><td>residual4d</td><td>32</td><td>64</td><td>96</td><td>OK</td><td>20572.52587890625</td><td>70.55937455139684</td><td>1.3605562777497653</td><td>105365</td></tr><tr><td>residual4d</td><td>32</td><td>64</td><td>128</td><td>OK</td><td>27087.8681640625</td><td>86.83983372130703</td><td>1.473977948999618</td><td>105365</td></tr><tr><td>residual4d</td><td>48</td><td>96</td><td>64</td><td>OK</td><td>20514.203125</td><td>46.20718805384998</td><td>1.3850658890000886</td><td>234453</td></tr><tr><td>residual4d</td><td>48</td><td>96</td><td>96</td><td>OK</td><td>30253.39990234375</td><td>60.49680937409431</td><td>1.5868605467499037</td><td>234453</td></tr><tr><td>residual4d</td><td>64</td><td>128</td><td>32</td><td>OK</td><td>14001.0390625</td><td>25.1639854460541</td><td>1.2716586594997352</td><td>414485</td></tr><tr><td>residual4d</td><td>64</td><td>128</td><td>64</td><td>OK</td><td>26963.56640625</td><td>43.80007162273852</td><td>1.461184825249802</td><td>414485</td></tr>
+</tbody></table>
+</body></html>

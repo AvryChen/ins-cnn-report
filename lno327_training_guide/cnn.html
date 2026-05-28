@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CNN 算法与模型结构</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">返回报告首页</a>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">cnn model</div>
+          <h1>CNN 在这个项目里到底做了什么</h1>
+          <p class="lead">CNN 不是魔法。它做的是：把谱图当成图像，先提取局部峰形和强度结构，再把这些结构压缩成特征向量，最后用全连接层输出五个归一化参数。</p>
+        </div>
+        <aside class="status-panel">
+          <strong>当前主模型</strong>
+          <p>gated4d 与 residual4d：Fig.3 是主证据，4D 是补充证据。</p>
+          <div class="rainbow"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="training guide">
+      <a href="./index.html">总览</a>
+      <a href="./parameters.html">参数</a>
+      <a href="./data.html">Fig.3 与 4D 数据</a>
+      <a href="./cnn.html" aria-current="page">CNN 算法</a>
+      <a href="./training.html">训练与指标</a>
+    </nav>
+  </div>
+
+  <main>
+    <div class="layout">
+      <aside class="toc">
+        <strong>本页目录</strong>
+        <a href="#human">先用人话解释</a>
+        <a href="#preprocess">weak-peak 预处理</a>
+        <a href="#encoder">基础 CNN encoder</a>
+        <a href="#models">三类模型结构</a>
+        <a href="#why-residual">为什么 residual4d 重要</a>
+      </aside>
+
+      <div class="content">
+        <section id="human" class="section">
+          <h2>1. 先用人话解释 CNN</h2>
+          <p>假设你在看一张 INS 谱图。你不会只读单个像素，而会看一小片区域：这里是不是有峰、峰有没有变宽、曲线有没有弯、弱峰是不是被强峰遮住。CNN 做的事情和这个很像。</p>
+          <div class="flow">
+            <div class="step">
+              <span class="badge">1</span>
+              <div>
+                <strong>小窗口扫描图像</strong>
+                <p>卷积核每次看局部区域，学习“峰”“边缘”“弯曲”“局部强度变化”这类图案。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">2</span>
+              <div>
+                <strong>重复多层</strong>
+                <p>第一层看局部亮点，后面几层把局部亮点组合成更大的色散形状。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">3</span>
+              <div>
+                <strong>压缩成特征向量</strong>
+                <p>最后把整张图压成几十维的 embedding，代表这张谱图的关键信息。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">4</span>
+              <div>
+                <strong>输出参数</strong>
+                <p>预测头把 embedding 映射到五个参数的归一化值。</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout">
+            这就是为什么 CNN 比普通 MLP 更适合当前任务：它保留了谱图的空间结构，而不是一开始就把图打散成一串数字。
+          </div>
+        </section>
+
+        <section id="preprocess" class="section">
+          <h2>2. weak-peak 预处理</h2>
+          <p>INS 图里强峰很容易支配损失和视觉效果。我们真正关心的弱峰、肩峰、细小形状变化，可能被强峰压住。所以输入 CNN 前会做 weak-peak transform：</p>
+          <div class="formula">scale = 每个样本自己的 99.5% 强度分位数
+x = clip(x / scale, 0, 1)
+x = x ^ gamma, 当前 gamma = 0.5</div>
+          <p>这个操作不是简单取 log。它的意思是：先按每张图自己的高分位强度归一化，再用平方根把弱信号抬起来。强峰仍然存在，但不会完全遮住弱峰。</p>
+          <div class="callout warning">
+            这一步会改变模型看到的强度比例，所以必须在训练、验证、测试、paper reference 预测时保持完全一致。当前代码正是这样做的。
+          </div>
+        </section>
+
+        <section id="encoder" class="section">
+          <h2>3. 基础 CNN encoder 结构</h2>
+          <p>当前基础 encoder 不复杂，重点是稳。它由三层卷积和两个池化组成，最后用全局平均池化压成 embedding。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>阶段</th>
+                  <th>结构</th>
+                  <th>作用</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>卷积 1</td>
+                  <td><code>Conv2d(in_channels, hidden, kernel=5)</code> + GroupNorm + GELU</td>
+                  <td>看较大的局部窗口，提取初级峰形。</td>
+                </tr>
+                <tr>
+                  <td>下采样 1</td>
+                  <td><code>MaxPool2d(2)</code></td>
+                  <td>缩小图像尺寸，提高后续感受野。</td>
+                </tr>
+                <tr>
+                  <td>卷积 2</td>
+                  <td><code>Conv2d(hidden, hidden*2, kernel=3)</code> + GroupNorm + GELU</td>
+                  <td>组合更复杂的局部结构。</td>
+                </tr>
+                <tr>
+                  <td>下采样 2</td>
+                  <td><code>MaxPool2d(2)</code></td>
+                  <td>进一步压缩空间尺寸。</td>
+                </tr>
+                <tr>
+                  <td>卷积 3</td>
+                  <td><code>Conv2d(hidden*2, hidden*2, kernel=3)</code> + GELU</td>
+                  <td>形成更高层的谱图特征。</td>
+                </tr>
+                <tr>
+                  <td>全局池化</td>
+                  <td><code>AdaptiveAvgPool2d(1,1)</code></td>
+                  <td>把不同位置的信息汇总成一个向量。</td>
+                </tr>
+                <tr>
+                  <td>embedding</td>
+                  <td><code>Linear(hidden*2, embedding)</code> + GELU</td>
+                  <td>得到固定长度的谱图特征。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>当前常用设置是 <code>hidden=32</code>、<code>embedding=64</code>。在 RTX 4080S 上，试过更大的 <code>hidden=48</code>、<code>embedding=96</code>，但实际 4D n1024 sweep 会 OOM，所以正式训练仍用 32/64。</p>
+        </section>
+
+        <section id="models" class="section">
+          <h2>4. 当前几类模型结构</h2>
+          <p>代码里有多个 mode。它们的区别主要在于：看不看 Fig.3，看不看 4D，以及如何融合二者。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>mode</th>
+                  <th>输入</th>
+                  <th>结构</th>
+                  <th>一句话评价</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>fig3</code></td>
+                  <td>Fig.3 路径谱</td>
+                  <td>一个 Fig.3 CNN encoder + prediction head。</td>
+                  <td>便宜、稳定，是判断 4D 是否有用的底线。</td>
+                </tr>
+                <tr>
+                  <td><code>fig4d</code></td>
+                  <td>4D volume 转成 50 通道 H-K 图</td>
+                  <td>一个 4D CNN encoder + prediction head。</td>
+                  <td>只看 4D，不看 Fig.3；可以做对照，但不是当前最稳主线。</td>
+                </tr>
+                <tr>
+                  <td><code>combined4d</code></td>
+                  <td>Fig.3 + 4D</td>
+                  <td>两个 encoder 的 embedding 拼接后预测。</td>
+                  <td>直接拼接，简单但容易让 4D 分支干扰 Fig.3。</td>
+                </tr>
+                <tr>
+                  <td><code>gated4d</code></td>
+                  <td>Fig.3 + 4D</td>
+                  <td>Fig.3 embedding 加上 gate 控制后的 4D embedding。</td>
+                  <td>Fig.3 是主证据，4D 通过 gate 补充。</td>
+                </tr>
+                <tr>
+                  <td><code>param_gated4d</code></td>
+                  <td>Fig.3 + 4D</td>
+                  <td>每个参数各有一个 gate，控制 4D residual 加多少。</td>
+                  <td>更细，但参数更多；泛化不一定更稳。</td>
+                </tr>
+                <tr>
+                  <td><code>residual4d</code></td>
+                  <td>Fig.3 + 4D</td>
+                  <td>先用 Fig.3 预测，再让 4D 学一个受限 correction。</td>
+                  <td>当前很重要，因为它限制 4D 不要推翻 Fig.3 主证据。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="why-residual" class="section">
+          <h2>5. 为什么 residual4d 值得重视</h2>
+          <p>直接把 Fig.3 和 4D 拼起来并不一定最好。4D 数据量大、通道多，模型可能在训练集上学到噪声或偶然模式，反而损害测试集。residual4d 的设计更保守：</p>
+          <div class="formula">Fig.3 logits = Fig.3 分支的基础预测
+correction logits = 4D 分支根据联合特征给出的修正
+fused logits = Fig.3 logits + residual_scale * gate * correction logits</div>
+          <p>这里 <code>residual_scale</code> 默认是 0.5，gate 初始也偏小。也就是说，模型一开始更相信 Fig.3；只有当 4D 分支真的能降低验证集误差时，它才逐渐加大修正。</p>
+          <div class="two-col">
+            <div class="card">
+              <div class="mini-title">gated4d</div>
+              <p>更像“Fig.3 特征 + 4D 特征”。适合从头训练，能学到比较完整的融合表示。</p>
+            </div>
+            <div class="card">
+              <div class="mini-title">residual4d</div>
+              <p>更像“Fig.3 预测 + 4D 修正”。适合做 head-only 微调和 ensemble，也更容易解释。</p>
+            </div>
+          </div>
+          <p>当前实践结果说明：单模型不一定总是 residual4d 最强，但 gated4d + residual4d ensemble 往往比任一单模型更好，因为两者错误模式不完全一样。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">CNN explanation for LNO327 inverse spin-wave fitting.</footer>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LNO327 posterior CNN report</title>
+  <style>
+    body { margin: 24px; font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; color: #17202a; background: #f5f7fa; }
+    main { max-width: 1180px; margin: auto; display: grid; gap: 16px; }
+    section { background: white; border: 1px solid #d9e0e7; border-radius: 8px; padding: 16px; }
+    h1, h2, p { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #d9e0e7; padding: 7px 8px; text-align: left; vertical-align: top; }
+    th { color: #667485; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+    figure { margin: 0; background: #fff; border: 1px solid #d9e0e7; padding: 8px; }
+    img { display: block; max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>LNO327 CNN 后验推断报告</h1>
+    <p>这一步不只输出一个参数点，而是输出参数分布。<code>9-component mixture density posterior</code> 用来检查不确定性、coverage 和参数耦合。</p>
+    <table>
+      <tr><th>数据集</th><td><code>/home/linux/work/ins-cnn/data/lno327_inverse_4d_wide_fwhm10_n2048_q160_e180_h81_k121_l5.h5</code></td></tr>
+      <tr><th>模型</th><td>9-component mixture density posterior, components=9, hidden=96, embedding=192</td></tr>
+      <tr><th>训练</th><td>epochs=90, best_epoch=87, batch=48, AMP=True</td></tr>
+      <tr><th>测试误差</th><td>mean range MAE = 8.98%, MAE = 0.9865 meV</td></tr>
+      <tr><th>Coverage</th><td>68% overall = 71.8%, 95% overall = 96.9%</td></tr>
+      <tr><th>耗时</th><td>0.34 h</td></tr>
+    </table>
+  </section>
+  <section>
+    <h2>每个参数的误差和可信区间覆盖率</h2>
+    <table><thead><tr><th>参数</th><th>MAE</th><th>RMSE</th><th>R2</th><th>MAE/范围</th><th>68%覆盖</th><th>95%覆盖</th></tr></thead><tbody><tr><td>SJc</td><td>3.922</td><td>4.918</td><td>0.648</td><td>13.08%</td><td>68.8%</td><td>95.1%</td></tr><tr><td>SJ1a</td><td>0.2673</td><td>0.3267</td><td>0.952</td><td>4.62%</td><td>73.0%</td><td>98.4%</td></tr><tr><td>SJ1b</td><td>0.3973</td><td>0.5003</td><td>0.928</td><td>5.31%</td><td>76.6%</td><td>96.4%</td></tr><tr><td>SJ2</td><td>0.3099</td><td>0.3931</td><td>0.969</td><td>3.88%</td><td>75.0%</td><td>97.7%</td></tr><tr><td>SA</td><td>0.0358</td><td>0.04301</td><td>0.364</td><td>18.02%</td><td>65.5%</td><td>97.0%</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>论文参考谱的后验</h2>
+    <p>这里显示 paper reference spectrum 输入后得到的参数后验。宽度越大，说明谱图对该参数约束越弱。</p>
+    <table><thead><tr><th>参数</th><th>mean</th><th>std</th><th>q16</th><th>q84</th></tr></thead><tbody><tr><td>SJc</td><td>37.43</td><td>7.275</td><td>31.05</td><td>45.94</td></tr><tr><td>SJ1a</td><td>2.6</td><td>0.4872</td><td>1.979</td><td>3.08</td></tr><tr><td>SJ1b</td><td>4.016</td><td>0.6027</td><td>3.334</td><td>4.648</td></tr><tr><td>SJ2</td><td>4.815</td><td>0.619</td><td>4.069</td><td>5.431</td></tr><tr><td>SA</td><td>-0.1089</td><td>0.05407</td><td>-0.1659</td><td>-0.04114</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>可视化</h2>
+    <div class="grid">
+      <figure><img src="01_training_curve.png" alt="training curve"><figcaption>训练/验证 NLL</figcaption></figure>
+      <figure><img src="02_coverage.png" alt="coverage"><figcaption>测试集 coverage</figcaption></figure>
+      <figure><img src="03_paper_pairplot.png" alt="paper posterior pair plot"><figcaption>paper reference posterior pair plot</figcaption></figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>

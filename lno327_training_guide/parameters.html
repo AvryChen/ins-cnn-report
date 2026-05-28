@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LNO327 参数说明</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">返回报告首页</a>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">parameters</div>
+          <h1>模型到底在反推哪些参数</h1>
+          <p class="lead">当前目标不是随便预测几个数，而是预测 Sunny 模型里的五个物理参数。它们共同决定 spin-wave spectrum 的峰位置、能量尺度、强度分布和各向异性细节。</p>
+        </div>
+        <aside class="status-panel">
+          <strong>输出顺序固定</strong>
+          <p>[SJc, SJ1a, SJ1b, SJ2, SA]</p>
+          <div class="rainbow"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="training guide">
+      <a href="./index.html">总览</a>
+      <a href="./parameters.html" aria-current="page">参数</a>
+      <a href="./data.html">Fig.3 与 4D 数据</a>
+      <a href="./cnn.html">CNN 算法</a>
+      <a href="./training.html">训练与指标</a>
+    </nav>
+  </div>
+
+  <main>
+    <div class="layout">
+      <aside class="toc">
+        <strong>本页目录</strong>
+        <a href="#physical">五个物理参数</a>
+        <a href="#range">narrow / wide 范围</a>
+        <a href="#independence">参数独立性</a>
+        <a href="#hyperparams">训练超参数</a>
+      </aside>
+
+      <div class="content">
+        <section id="physical" class="section">
+          <h2>1. 五个物理参数</h2>
+          <p>训练数据里每个样本都有一组真实参数。Sunny 用这组参数生成谱图；CNN 反过来根据谱图预测这组参数。下面这张表是目前代码里的解释口径。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>参数</th>
+                  <th>物理含义</th>
+                  <th>在模型里的作用</th>
+                  <th>为什么难/有用</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>SJc</strong></td>
+                  <td>双层内上下 Ni 之间的 c 方向/层间交换。</td>
+                  <td>代码里对应 <code>Bond(1,2,[0,0,0])</code>。</td>
+                  <td>主要影响层间耦合相关的色散和 L 依赖；只看固定路径时信息容易被压缩。</td>
+                </tr>
+                <tr>
+                  <td><strong>SJ1a</strong></td>
+                  <td>面内最近邻 a/H 方向交换。</td>
+                  <td>代码里对应 <code>Bond(atom,atom,[1,0,0])</code>。</td>
+                  <td>和 H 方向峰形、色散斜率相关，通常比 SJc 更容易从图上读出来。</td>
+                </tr>
+                <tr>
+                  <td><strong>SJ1b</strong></td>
+                  <td>面内最近邻 b/K 方向交换。</td>
+                  <td>代码里对应 <code>Bond(atom,atom,[0,1,0])</code>。</td>
+                  <td>和 K 方向响应相关；与 SJ1a 的差别体现面内各向异性。</td>
+                </tr>
+                <tr>
+                  <td><strong>SJ2</strong></td>
+                  <td>面内对角次近邻交换。</td>
+                  <td>代码里同时作用于 <code>[1,1,0]</code> 和 <code>[1,-1,0]</code>。</td>
+                  <td>会改变更细的弯曲、交叉和弱峰结构；CNN 比展平模型更适合抓这种局部图像特征。</td>
+                </tr>
+                <tr>
+                  <td><strong>SA</strong></td>
+                  <td>单离子各向异性。</td>
+                  <td>代码中是 onsite coupling <code>SA*S[1]^2</code>，当前采样范围为负值。</td>
+                  <td>数值尺度很小，不能只看绝对 MAE；需要用 range-normalized MAE 评估。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout blue">
+            参数名里的 S 表示当前代码按有效的 S*J 或 S*A 组合量处理。机器学习模型并不直接理解物理，只学习这些参数变化如何改变谱图。
+          </div>
+        </section>
+
+        <section id="range" class="section">
+          <h2>2. narrow / wide 范围</h2>
+          <p>narrow 和 wide 的区别不是模型结构，而是训练数据里的参数采样范围。范围越大，模型要覆盖的谱图变化越多，反演也越难。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>参数</th>
+                  <th>当前 wide preset</th>
+                  <th>解释</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>SJc</td>
+                  <td>25 到 55</td>
+                  <td>跨度大，层间交换变化显著；也是目前较难压低误差的参数之一。</td>
+                </tr>
+                <tr>
+                  <td>SJ1a</td>
+                  <td>0.2 到 6.0</td>
+                  <td>面内 a 方向最近邻交换。</td>
+                </tr>
+                <tr>
+                  <td>SJ1b</td>
+                  <td>0.5 到 8.0</td>
+                  <td>面内 b 方向最近邻交换。</td>
+                </tr>
+                <tr>
+                  <td>SJ2</td>
+                  <td>1.0 到 9.0</td>
+                  <td>次近邻交换，往往需要靠更细的峰形和弱峰结构约束。</td>
+                </tr>
+                <tr>
+                  <td>SA</td>
+                  <td>-0.20 到 -0.001</td>
+                  <td>量级小，因此必须归一化看误差。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>早期 narrow 结果更像“证明方法能跑通”。wide 和 pure-wide 更接近真正想做的反演：给一个更宽的参数空间，让模型在没见过的验证/测试样本上仍然能给出可信参数。</p>
+        </section>
+
+        <section id="independence" class="section">
+          <h2>3. 这些参数是不是独立的</h2>
+          <p>从采样程序角度看，训练集会把这五个量作为独立坐标去抽样；从物理谱图角度看，它们的影响不是独立可分的。也就是说，两个不同参数可能改变同一条色散线，或者一个参数的影响会被另一个参数部分抵消。</p>
+          <div class="callout warning">
+            所以反向拟合不是简单读数。模型遇到的是一个多参数耦合问题：同一张谱图可能同时含有 SJc、SJ1a、SJ1b、SJ2、SA 的混合影响。
+          </div>
+          <p>这也是为什么我们要关注 4D 和弱峰。强峰区域可能主要受某几个参数支配，导致另外一些参数不敏感；弱峰、肩峰、L 依赖和不同能量切片可能提供额外约束。</p>
+        </section>
+
+        <section id="hyperparams" class="section">
+          <h2>4. 训练超参数和物理参数不是一回事</h2>
+          <p>报告里还会出现 batch、hidden、embedding、epoch、learning rate 这类词。这些不是物理模型参数，而是训练 CNN 时的工程设置。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>当前常用值</th>
+                  <th>人话解释</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>batch size</td>
+                  <td>128 on RTX 4080S AMP</td>
+                  <td>一次喂给 GPU 的样本数。越大通常越快，但显存会涨。</td>
+                </tr>
+                <tr>
+                  <td>hidden</td>
+                  <td>32</td>
+                  <td>CNN 内部通道数的基础宽度。越大模型容量越高，也更吃显存。</td>
+                </tr>
+                <tr>
+                  <td>embedding</td>
+                  <td>64</td>
+                  <td>每个分支最终压缩出的特征向量长度。</td>
+                </tr>
+                <tr>
+                  <td>epochs</td>
+                  <td>280 formal scratch run</td>
+                  <td>完整扫过训练集的轮数。早停会用验证集决定是否提前停止。</td>
+                </tr>
+                <tr>
+                  <td>learning rate</td>
+                  <td>1e-3 scratch / 2e-3 等 head-only</td>
+                  <td>每次更新参数的步长。过大容易震荡，过小收敛慢。</td>
+                </tr>
+                <tr>
+                  <td>AMP</td>
+                  <td>float16 + GradScaler</td>
+                  <td>混合精度训练。主要为加速和省显存，但必须检查精度是否变差。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">Parameter guide for the ins-cnn LNO327 training reports.</footer>
+</body>
+</html>

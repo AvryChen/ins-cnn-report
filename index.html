@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INS CNN report hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #667485;
+      --line: #d9e0e7;
+      --paper: #ffffff;
+      --bg: #f5f7fa;
+      --red: #d84a3a;
+      --yellow: #e2b93b;
+      --green: #2d9b73;
+      --blue: #2f6fcf;
+      --soft-blue: #eaf1ff;
+      --soft-green: #e9f7f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      padding: 30px max(22px, calc((100vw - 1180px) / 2)) 22px;
+      background:
+        linear-gradient(90deg, rgba(216,74,58,.18), rgba(226,185,59,.15), rgba(45,155,115,.15), rgba(47,111,207,.18)),
+        var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+    main {
+      width: min(1180px, calc(100vw - 44px));
+      margin: 22px auto 42px;
+      display: grid;
+      gap: 16px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(26px, 4vw, 42px); line-height: 1.08; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p { color: var(--muted); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+    .subtitle { margin-top: 10px; max-width: 860px; }
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+      margin-top: 18px;
+      max-width: 520px;
+    }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .panel, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .value { margin-top: 8px; font-size: 24px; font-weight: 750; }
+    .detail { margin-top: 8px; color: var(--muted); }
+    .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 13px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 650; width: 180px; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    a { color: var(--blue); font-weight: 650; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .links { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+    .links a { display: inline-flex; min-height: 28px; align-items: center; }
+    .note { color: var(--muted); }
+    .small { font-size: 13px; }
+    </style>
+</head>
+<body>
+  <header>
+    <h1>INS CNN report hub</h1>
+    <p class="subtitle">La3Ni2O7 / LNO327 INS spin-wave spectrum 反向拟合项目的公开报告入口。这里由脚本扫描 <code>docs/</code> 自动生成，不再手工维护报告链接。</p>
+    <div class="bar" aria-hidden="true"></div>
+    <div class="pillrow">
+      <span class="pill">自动目录</span>
+      <span class="pill">4 个训练报告</span>
+      <span class="pill">HTML 主入口</span>
+      <span class="pill">metrics JSON</span>
+    </div>
+  </header>
+  <main>
+    <section class="grid">
+      <article class="card">
+        <div class="label">published reports</div>
+        <div class="value">4</div>
+        <p class="detail">来自 <code>docs/*/*/index.html</code> 的训练和比较报告。</p>
+      </article>
+      <article class="card">
+        <div class="label">current collection</div>
+        <div class="value"><a href="posterior_24h/index.html">24 小时后验推断报告</a></div>
+        <p class="detail">n=2048 数据、Gaussian uncertainty CNN、MDN posterior 和 posterior diagnostics 的固定入口。</p>
+      </article>
+      <article class="card">
+        <div class="label">format contract</div>
+        <div class="value">HTML first</div>
+        <p class="detail"><code>index.html</code> 是报告入口；<code>metrics.json</code> 是指标；<code>report.md</code> 是补充原文。</p>
+      </article>
+    </section>
+    <section class="panel">
+      <h2>报告集合</h2>
+      <table>
+        <thead><tr><th>集合</th><th>入口</th><th>数量/更新</th></tr></thead>
+        <tbody><tr><th>24 小时后验推断报告</th><td><a href='posterior_24h/index.html'>posterior_24h/index.html</a><p class='small'>n=2048 数据、Gaussian uncertainty CNN、MDN posterior 和 posterior diagnostics 的固定入口。</p></td><td class='small'>4 个报告<br>2026-05-27 11:38</td></tr></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <h2>所有训练报告入口</h2>
+      <table>
+        <thead><tr><th>类别</th><th>报告</th><th>集合</th></tr></thead>
+        <tbody><tr><th>后验推断</th><td><a href='posterior_24h/posterior_predictive/index.html'>LNO327 posterior diagnostics</a><p class='small'>包含可视化报告和训练产物。</p><div class='links'><a href='posterior_24h/posterior_predictive/index.html'>HTML 入口</a></div></td><td class='small'>posterior_24h<br><code>posterior_predictive</code></td></tr><tr><th>后验推断</th><td><a href='posterior_24h/npe_encoder_flow/index.html'>LNO327 posterior CNN report</a><p class='small'>test mean range MAE = 8.98%，MAE = 0.9865，68% coverage = 71.8%，best epoch = 87</p><div class='links'><a href='posterior_24h/npe_encoder_flow/index.html'>HTML 入口</a>
+<a href='posterior_24h/npe_encoder_flow/metrics.json'>metrics</a>
+<a href='posterior_24h/npe_encoder_flow/01_training_curve.png'>训练曲线</a></div></td><td class='small'>posterior_24h<br><code>npe_encoder_flow</code></td></tr><tr><th>后验推断</th><td><a href='posterior_24h/uncertainty_cnn/index.html'>LNO327 posterior CNN report</a><p class='small'>test mean range MAE = 1.89%，MAE = 0.232，68% coverage = 81.1%，best epoch = 177</p><div class='links'><a href='posterior_24h/uncertainty_cnn/index.html'>HTML 入口</a>
+<a href='posterior_24h/uncertainty_cnn/metrics.json'>metrics</a>
+<a href='posterior_24h/uncertainty_cnn/01_training_curve.png'>训练曲线</a></div></td><td class='small'>posterior_24h<br><code>uncertainty_cnn</code></td></tr><tr><th>数据生成</th><td><a href='posterior_24h/data_n2048/index.html'>n=2048 data report</a><p class='small'>包含可视化报告和训练产物。</p><div class='links'><a href='posterior_24h/data_n2048/index.html'>HTML 入口</a></div></td><td class='small'>posterior_24h<br><code>data_n2048</code></td></tr></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <h2>项目说明与交接文档</h2>
+      <table>
+        <thead><tr><th>类别</th><th>文档</th><th>用途</th></tr></thead>
+        <tbody><tr><th>训练导读</th><td><div class='links'><a href='lno327_training_guide/index.html'>总览</a>
+<a href='lno327_training_guide/parameters.html'>参数</a>
+<a href='lno327_training_guide/data.html'>Fig.3/4D 数据</a>
+<a href='lno327_training_guide/cnn.html'>CNN 算法</a>
+<a href='lno327_training_guide/training.html'>训练与指标</a></div></td><td class='small'>说明文档</td></tr><tr><th>项目状态</th><td><div class='links'><a href='cloud_agent_status.md'>云端训练状态</a>
+<a href='lno327_ai_handoff.html'>AI handoff</a>
+<a href='lno327_cnn_weakpeak_summary.md'>weak-peak summary</a></div></td><td class='small'>说明文档</td></tr><tr><th>云端配置</th><td><div class='links'><a href='cloud_codex_agent_prompt.md'>云端 agent prompt</a>
+<a href='cloud_network.md'>cloud network</a>
+<a href='superpowers/plans/2026-05-23-lno327-julia-inverse-dataset.md'>Julia inverse dataset plan</a></div></td><td class='small'>说明文档</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

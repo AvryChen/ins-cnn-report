@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LNO327 posterior diagnostics</title>
+  <style>
+    body { margin: 0; font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; color: #17202a; background: #f5f7fa; }
+    header { padding: 28px max(24px, calc((100vw - 1180px) / 2)); background: linear-gradient(90deg, rgba(216,74,58,.16), rgba(226,185,59,.14), rgba(45,155,115,.14), rgba(47,111,207,.16)), #fff; border-bottom: 1px solid #d9e0e7; }
+    main { max-width: 1180px; margin: 22px auto; display: grid; gap: 16px; }
+    section { background: #fff; border: 1px solid #d9e0e7; border-radius: 8px; padding: 16px; }
+    h1, h2, p { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #d9e0e7; padding: 7px 8px; text-align: left; vertical-align: top; }
+    th { color: #667485; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+    figure { margin: 0; background: #fff; border: 1px solid #d9e0e7; padding: 8px; }
+    img { display: block; max-width: 100%; height: auto; }
+    .note { color: #465466; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>LNO327 后验统一诊断</h1>
+  <p>这页不再只看一个 loss，而是把三个核心问题放到一起看：每参数误差、参数耦合、以及谱图的 posterior predictive。</p>
+</header>
+<main>
+  <section>
+    <h2>结论先看这里</h2>
+    <p>当前最重要的风险不是训练是否收敛，而是参数是否真的可辨识。判断标准是三件事要同时看：测试集误差不能太大，paper 谱对应的后验不能太宽，posterior predictive 不能只复现强峰而丢掉结构细节。</p>
+    <p class="note">数据源：<code>data/lno327_inverse_4d_wide_fwhm10_n2048_q160_e180_h81_k121_l5.h5</code>。posterior predictive 这里使用的是“参数空间最近邻的 Sunny 样本近似”，不是重新调用 Sunny 做严格重正演，所以它适合做方向性诊断，不适合当成最终物理论证。</p>
+  </section>
+  <section>
+    <h2>模型对比</h2>
+    <table><thead><tr><th>模型</th><th>test mean range MAE</th><th>test MAE (meV)</th><th>68% coverage</th><th>95% coverage</th><th>best epoch</th><th>耗时</th></tr></thead><tbody><tr><td>Gaussian</td><td>1.89%</td><td>0.232</td><td>81.1%</td><td>97.8%</td><td>177</td><td>0.68 h</td></tr><tr><td>MDN</td><td>8.98%</td><td>0.9865</td><td>71.8%</td><td>96.9%</td><td>87</td><td>0.34 h</td></tr></tbody></table>
+    <figure><img src="01_model_comparison.png" alt="model comparison"><figcaption>Gaussian baseline 与 MDN posterior 的整体对比</figcaption></figure>
+  </section>
+  <section>
+    <h2>参数可辨识性</h2>
+    <p>这里把三种量放在一起：测试集误差、paper 谱后验宽度、测试集平均 68% 区间宽度。若这三项里有两项都偏大，就说明该参数更像“只能约束到一个范围”，而不是能稳定反推出单值。</p>
+    <table><thead><tr><th>参数</th><th>test MAE/range</th><th>paper posterior std/range</th><th>mean 68% width/range</th><th>68%覆盖</th><th>95%覆盖</th><th>R2</th><th>风险</th></tr></thead><tbody><tr><td>SJ2</td><td>3.88%</td><td>7.74%</td><td>11.66%</td><td>75.0%</td><td>97.7%</td><td>0.969</td><td>中</td></tr><tr><td>SJ1a</td><td>4.62%</td><td>8.43%</td><td>14.16%</td><td>73.0%</td><td>98.4%</td><td>0.952</td><td>中</td></tr><tr><td>SJ1b</td><td>5.31%</td><td>8.06%</td><td>16.13%</td><td>76.6%</td><td>96.4%</td><td>0.928</td><td>中</td></tr><tr><td>SJc</td><td>13.08%</td><td>24.26%</td><td>35.98%</td><td>68.8%</td><td>95.1%</td><td>0.648</td><td>高</td></tr><tr><td>SA</td><td>18.02%</td><td>27.21%</td><td>43.73%</td><td>65.5%</td><td>97.0%</td><td>0.364</td><td>高</td></tr></tbody></table>
+    <figure><img src="02_parameter_risk.png" alt="parameter risk"><figcaption>越高越难：误差大、后验宽、区间宽都说明可辨识性更弱</figcaption></figure>
+  </section>
+  <section>
+    <h2>参数耦合</h2>
+    <p>下面这张 pair plot 用的是 paper reference 谱对应的 MDN 后验样本。若某两列总是拉成长条，说明它们更像“联动组合”而不是彼此独立可测。</p>
+    <figure><img src="03_paper_pairplot.png" alt="paper pair plot"><figcaption>paper reference posterior pair plot</figcaption></figure>
+  </section>
+  <section>
+    <h2>Posterior Predictive</h2>
+    <p>Fig.3 近似 posterior predictive：RMS=0.09731, MAE=0.04561。这里从 paper posterior 中抽样，再在数据集参数库里找最近邻 Sunny 样本，最后做平均谱。</p>
+    <p class="note">Fig.3 使用 256 个 posterior 样本；4D 使用 32 个 posterior 样本。样本数控制在这个量级，是为了让结果足够稳定，同时不把 4D 体数据撑得太大。</p>
+    <figure><img src="04_posterior_predictive_fig3.png" alt="fig3 predictive"><figcaption>paper Fig.3、posterior predictive mean、以及残差</figcaption></figure>
+    <p>4D 近似 posterior predictive：RMS=0.07891, MAE=0.04144。这里自动挑出残差最大的 4 个 (energy, L) 切片，用来判断模型在哪些 map 区域最难复现。</p>
+    <figure><img src='05_posterior_predictive_fig4d.png' alt='fig4d predictive'><figcaption>4D map 的高残差切片：paper / predictive / residual</figcaption></figure>
+  </section>
+</main>
+</body>
+</html>

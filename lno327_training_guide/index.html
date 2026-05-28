@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LNO327 训练说明总览</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">返回报告首页</a>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">LNO327 inverse fitting guide</div>
+          <h1>把目前训练主线讲清楚：数据、参数、CNN 和下一步</h1>
+          <p class="lead">这组页面用于先读懂项目，再看具体 run 报告。它不替代训练日志，而是解释这些日志里反复出现的词：Fig.3、4D、narrow、wide、gated4d、residual4d、AMP、mean range MAE。</p>
+        </div>
+        <aside class="status-panel">
+          <strong>当前主线</strong>
+          <p>用 Sunny.jl 生成 LNO327 的谱图和 4D intensity volume，再用 CNN 从谱图反推五个交换/各向异性参数。</p>
+          <div class="rainbow"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="training guide">
+      <a href="./index.html" aria-current="page">总览</a>
+      <a href="./parameters.html">参数</a>
+      <a href="./data.html">Fig.3 与 4D 数据</a>
+      <a href="./cnn.html">CNN 算法</a>
+      <a href="./training.html">训练与指标</a>
+    </nav>
+  </div>
+
+  <main>
+    <div class="layout">
+      <aside class="toc">
+        <strong>本页目录</strong>
+        <a href="#goal">项目目标</a>
+        <a href="#why-cnn">为什么是 CNN</a>
+        <a href="#pages">阅读顺序</a>
+        <a href="#current">当前状态</a>
+      </aside>
+
+      <div class="content">
+        <section id="goal" class="section">
+          <h2>1. 项目目标</h2>
+          <p>我们现在做的事情可以用一句话概括：给模型一张或一组中子散射强度图，让它反推出生成这张图的物理参数。</p>
+          <div class="formula">输入：S(Q,E)、S(H,K,L,E) 这类谱图或强度体数据
+输出：[SJc, SJ1a, SJ1b, SJ2, SA]</div>
+          <p>这些谱图不是实验原始数据直接来的，而是 Sunny.jl 根据一组参数模拟出来的。训练时模型看到很多组“参数 -> 谱图”的例子；训练好以后，希望它能做反方向的事：看到谱图就估计参数。</p>
+          <div class="callout">
+            这不是普通图片分类。我们不关心“这是什么图”，而是关心峰的位置、峰形、弱峰、肩峰、强度分布和不同切片之间的变化如何共同约束物理参数。
+          </div>
+        </section>
+
+        <section id="why-cnn" class="section">
+          <h2>2. 为什么当前更重视 CNN</h2>
+          <p>早期 ridge 或 MLP 可以把谱图展开成一长串数字来拟合参数，但这种做法会弱化二维图像里的局部结构。CNN 的优势在于它直接在图上移动小卷积核，学习“附近像素怎样一起变化”。这正好对应谱图里的峰、条纹、肩峰、分叉和弱峰。</p>
+          <div class="flow">
+            <div class="step">
+              <span class="badge">1</span>
+              <div>
+                <strong>卷积层看局部结构</strong>
+                <p>一个小窗口扫过谱图，提取局部峰形、边缘、斜率和强度分布。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">2</span>
+              <div>
+                <strong>多层卷积看更大范围</strong>
+                <p>浅层看局部亮点，深层组合出完整色散曲线或 map 中的区域模式。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">3</span>
+              <div>
+                <strong>融合 Fig.3 和 4D</strong>
+                <p>Fig.3 提供稳定主证据，4D 提供额外的 H/K/L/能量分布信息。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="badge">4</span>
+              <div>
+                <strong>输出归一化参数</strong>
+                <p>最后一层输出 0 到 1 的五个数，再还原到真实参数范围。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="pages" class="section">
+          <h2>3. 建议阅读顺序</h2>
+          <div class="cards">
+            <article class="card">
+              <div class="label">第一步</div>
+              <div class="value"><a href="./parameters.html">参数页</a></div>
+              <div class="detail">先理解 SJc、SJ1a、SJ1b、SJ2、SA 分别是什么，wide 范围为什么更难。</div>
+            </article>
+            <article class="card">
+              <div class="label">第二步</div>
+              <div class="value"><a href="./data.html">数据页</a></div>
+              <div class="detail">看 Fig.3、4D、narrow/wide/pure-wide 的数据结构和差别。</div>
+            </article>
+            <article class="card">
+              <div class="label">第三步</div>
+              <div class="value"><a href="./cnn.html">CNN 页</a></div>
+              <div class="detail">解释卷积、weak-peak 预处理、gated4d、residual4d 和模型结构。</div>
+            </article>
+            <article class="card">
+              <div class="label">第四步</div>
+              <div class="value"><a href="./training.html">训练页</a></div>
+              <div class="detail">解释 batch、epoch、AMP、loss、range MAE、GPU sweep 和当前 run。</div>
+            </article>
+          </div>
+        </section>
+
+        <section id="current" class="section">
+          <h2>4. 当前状态</h2>
+          <p>目前主线已经从早期 Fig.3-only 走到 Fig.3 + 4D 的 CNN。历史结果说明：只看 Fig.3 会丢掉一部分参数信息；加入 4D 后，模型能看到固定能量下 H/K/L 分布，尤其有机会利用弱峰区域。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>阶段</th>
+                  <th>核心意义</th>
+                  <th>目前判断</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Fig.3-only</td>
+                  <td>只看高对称路径 S(Q,E)</td>
+                  <td>稳定、便宜，但数据量和空间信息不足。</td>
+                </tr>
+                <tr>
+                  <td>4D volume</td>
+                  <td>同时看 E、L、H、K 的 intensity 分布</td>
+                  <td>更接近真实实验数据形态，是后续主线。</td>
+                </tr>
+                <tr>
+                  <td>wide / pure-wide</td>
+                  <td>扩大参数范围，检验模型泛化</td>
+                  <td>比 narrow 更难，但更接近“真反演”任务。</td>
+                </tr>
+                <tr>
+                  <td>AMP + batch 128</td>
+                  <td>用 4080S 显存提高吞吐</td>
+                  <td>当前稳定配置是 hidden=32、embedding=64、batch=128。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warning">
+            目前不能只看“显存有没有占满”。更重要的是：AMP 后精度是否不变差、验证集是否继续下降、每个参数的误差是否均衡，尤其是 SJc 和 SA 这种更难的参数。
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">Generated as static GitHub Pages documentation for the ins-cnn project.</footer>
+</body>
+</html>
